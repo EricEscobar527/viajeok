@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="trip_reader_label">Análisis Viaje – Lectura de viajes</string>
+    <string name="trip_reader_description">Lee el precio y la distancia de las ofertas de viaje en Uber, DiDi, inDrive y Bolt para mostrarte si conviene. Solo funciona dentro de esas apps y mientras el análisis está activo.</string>
+</resources>

@@ -47,3 +47,9 @@ kotlin {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    // On-device OCR for offer cards without accessibility text (DiDi).
+    implementation("com.google.mlkit:text-recognition:16.0.1")
+    testImplementation("junit:junit:4.13.2")
+}
