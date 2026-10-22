@@ -47,10 +47,25 @@ class _SupportScreenState extends State<SupportScreen> {
       imageQuality: 85,
     );
     if (picked.isEmpty) return;
+    // The backend takes JPG/PNG/WEBP/GIF only (some phones save HEIC).
+    final usable = [
+      for (final f in picked)
+        if (HttpSupportApi.imageTypes.containsKey(
+          f.path.split('.').last.toLowerCase(),
+        ))
+          f,
+    ];
+    if (usable.length < picked.length && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context).supportImageFormat),
+        ),
+      );
+    }
     setState(() {
       _screenshots = [
         ..._screenshots,
-        ...picked,
+        ...usable,
       ].take(_maxScreenshots).toList();
     });
   }
@@ -62,25 +77,36 @@ class _SupportScreenState extends State<SupportScreen> {
     final detailed = issue.needsDeviceDetails;
 
     setState(() => _sending = true);
+    final SupportReceipt receipt;
     try {
-      await widget.api.submit(
+      receipt = await widget.api.submit(
         SupportTicket(
           issue: issue,
           sentAt: DateTime.now(),
           device: await DeviceInfo.load(),
           phoneModel: detailed ? _phoneModel.text.trim() : null,
           email: _email.text.trim(),
-          description: detailed ? null : _description.text.trim(),
+          message: detailed ? null : _description.text.trim(),
           screenshotPaths: detailed
               ? [for (final s in _screenshots) s.path]
               : const [],
         ),
       );
-    } on Exception {
+    } on Exception catch (e) {
       if (!mounted) return;
       setState(() => _sending = false);
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(t.supportSendError)));
+      final failure = e is SupportApiException
+          ? e.failure
+          : SupportFailure.unavailable;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(switch (failure) {
+            SupportFailure.rateLimited => t.supportSendRateLimited,
+            SupportFailure.invalid => t.supportSendInvalid,
+            SupportFailure.unavailable => t.supportSendError,
+          }),
+        ),
+      );
       return;
     }
     if (!mounted) return;
@@ -91,7 +117,11 @@ class _SupportScreenState extends State<SupportScreen> {
       builder: (context) => AlertDialog(
         icon: const Icon(Icons.mark_email_read_outlined),
         title: Text(t.supportSentTitle),
-        content: Text(t.supportSentText),
+        content: Text(
+          receipt.folio == null
+              ? t.supportSentText
+              : '${t.supportSentText}\n\n${t.supportSentFolio(receipt.folio!)}',
+        ),
         actions: [
           FilledButton(
             onPressed: () => Navigator.pop(context),

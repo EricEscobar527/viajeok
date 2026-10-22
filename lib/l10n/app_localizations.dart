@@ -451,6 +451,30 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Lectura de pantalla desactivada. Ya puedes abrir tu app de banco.'**
   String get serviceDisabledNotice;
+
+  /// No description provided for @supportSentFolio.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu folio es {folio}.'**
+  String supportSentFolio(String folio);
+
+  /// No description provided for @supportSendRateLimited.
+  ///
+  /// In es, this message translates to:
+  /// **'Enviaste demasiados reportes. Intenta de nuevo más tarde.'**
+  String get supportSendRateLimited;
+
+  /// No description provided for @supportSendInvalid.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo enviar: revisa los datos y las imágenes.'**
+  String get supportSendInvalid;
+
+  /// No description provided for @supportImageFormat.
+  ///
+  /// In es, this message translates to:
+  /// **'Algunas imágenes no se agregaron: usa capturas JPG o PNG.'**
+  String get supportImageFormat;
 }
 
 class _AppLocalizationsDelegate

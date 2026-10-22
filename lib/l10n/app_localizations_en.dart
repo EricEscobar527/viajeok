@@ -212,4 +212,21 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get serviceDisabledNotice =>
       'Screen reading is off. You can open your banking app now.';
+
+  @override
+  String supportSentFolio(String folio) {
+    return 'Your ticket number is $folio.';
+  }
+
+  @override
+  String get supportSendRateLimited =>
+      'You\'ve sent too many reports. Try again later.';
+
+  @override
+  String get supportSendInvalid =>
+      'Couldn\'t send it: check the details and images.';
+
+  @override
+  String get supportImageFormat =>
+      'Some images weren\'t added: use JPG or PNG screenshots.';
 }

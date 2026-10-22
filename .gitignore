@@ -46,3 +46,7 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Build-time config with secrets (copy env/example.json to env/dev.json)
+env/*.json
+!env/example.json

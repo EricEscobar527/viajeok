@@ -27,7 +27,7 @@ void main() {
     expect(fields['issue'], 'wrong_calculation');
     expect(fields['email'], 'chofer@correo.com');
     expect(fields['phone_model'], 'Realme 12');
-    expect(fields.containsKey('description'), isFalse);
+    expect(fields.containsKey('message'), isFalse);
     expect(fields['app_version'], '1.0.0');
     expect(fields['app_build'], '1');
     expect(fields['android_version'], '16');
@@ -43,10 +43,10 @@ void main() {
       issue: SupportIssue.other,
       sentAt: DateTime(2026, 1, 2, 3, 4, 5),
       email: 'a@b.co',
-      description: 'Algo pasó',
+      message: 'Algo pasó',
     ).toFormFields();
 
-    expect(fields.keys, {'issue', 'email', 'description', 'device_time'});
+    expect(fields.keys, {'issue', 'email', 'message', 'device_time'});
   });
 
   test('device time carries the UTC offset', () {

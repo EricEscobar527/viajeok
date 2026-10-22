@@ -1,4 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Support reports are sent to the backend. -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <application
         android:label="Análisis Viaje"
         android:name="${applicationName}"

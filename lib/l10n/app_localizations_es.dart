@@ -215,4 +215,21 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get serviceDisabledNotice =>
       'Lectura de pantalla desactivada. Ya puedes abrir tu app de banco.';
+
+  @override
+  String supportSentFolio(String folio) {
+    return 'Tu folio es $folio.';
+  }
+
+  @override
+  String get supportSendRateLimited =>
+      'Enviaste demasiados reportes. Intenta de nuevo más tarde.';
+
+  @override
+  String get supportSendInvalid =>
+      'No se pudo enviar: revisa los datos y las imágenes.';
+
+  @override
+  String get supportImageFormat =>
+      'Algunas imágenes no se agregaron: usa capturas JPG o PNG.';
 }

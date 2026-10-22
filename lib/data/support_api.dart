@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 
 import '../platform/device_info.dart';
 
@@ -15,7 +18,7 @@ enum SupportIssue {
   final String code;
 
   /// Calculation and alert problems need device details and screenshots to
-  /// reproduce; "other" is a free-text description. All of them ask for an
+  /// reproduce; "other" is a free-text message. All of them ask for an
   /// email so the report can be answered.
   bool get needsDeviceDetails => this != SupportIssue.other;
 }
@@ -28,7 +31,7 @@ class SupportTicket {
     required this.sentAt,
     this.phoneModel,
     this.email,
-    this.description,
+    this.message,
     this.screenshotPaths = const [],
     this.device,
   });
@@ -41,7 +44,7 @@ class SupportTicket {
   /// As typed by the user.
   final String? phoneModel;
   final String? email;
-  final String? description;
+  final String? message;
 
   /// Local file paths of the screenshots the user picked.
   final List<String> screenshotPaths;
@@ -55,7 +58,7 @@ class SupportTicket {
     'issue': issue.code,
     'email': ?email,
     'phone_model': ?phoneModel,
-    'description': ?description,
+    'message': ?message,
     'device_time': isoWithOffset(sentAt),
     if (device case final d?) ...{
       'app_version': d.appVersion,
@@ -81,97 +84,182 @@ String isoWithOffset(DateTime t) {
       '$sign${two(abs.inHours)}:${two(abs.inMinutes % 60)}';
 }
 
-class SupportApiException implements Exception {
-  const SupportApiException(this.message);
+/// What the backend answered for a created ticket.
+class SupportReceipt {
+  const SupportReceipt({this.id, this.folio});
 
+  final String? id;
+
+  /// Human-facing ticket number, e.g. "SOP-000003". Null when there's no
+  /// backend yet.
+  final String? folio;
+}
+
+enum SupportFailure {
+  /// 429: too many reports from this user/device.
+  rateLimited,
+
+  /// 400: a field was missing or invalid, or an image was rejected.
+  invalid,
+
+  /// No connection, timeout, 401 (bad token/app disabled) or a server error.
+  unavailable,
+}
+
+class SupportApiException implements Exception {
+  const SupportApiException(this.failure, this.message);
+
+  final SupportFailure failure;
   final String message;
 
   @override
-  String toString() => 'SupportApiException: $message';
+  String toString() => 'SupportApiException(${failure.name}): $message';
 }
 
-/// Sends support reports. Swap the implementation in [SupportApi.create]
-/// once the backend exists; the form only depends on this interface.
+/// Sends support reports. The form only depends on this interface.
 abstract interface class SupportApi {
-  Future<void> submit(SupportTicket ticket);
+  Future<SupportReceipt> submit(SupportTicket ticket);
 
-  /// The API the app uses: the real backend when [SupportApiConfig.baseUrl]
-  /// is set, otherwise a stand-in that accepts every report.
-  factory SupportApi.create() => SupportApiConfig.baseUrl.isEmpty
-      ? const PendingSupportApi()
-      : HttpSupportApi(Uri.parse(SupportApiConfig.baseUrl));
+  /// The real backend when [SupportApiConfig.baseUrl] is configured,
+  /// otherwise a stand-in that accepts every report.
+  factory SupportApi.create() => SupportApiConfig.isConfigured
+      ? HttpSupportApi(
+          Uri.parse(SupportApiConfig.baseUrl),
+          token: SupportApiConfig.token,
+        )
+      : const PendingSupportApi();
 }
 
-/// Backend settings. Fill these in when the API is ready.
+/// Backend settings, injected at build time so the token and URL stay out
+/// of the source code and of git:
+///
+///   flutter run --dart-define-from-file=env/dev.json
+///
+/// `env/dev.json` (git-ignored; copy `env/example.json`) holds
+/// `SUPPORT_API_BASE_URL` and `SUPPORT_API_TOKEN`. Note that anything
+/// shipped inside an APK can be extracted: the token identifies the app,
+/// it isn't a real secret; the backend's rate limit is the protection.
 abstract final class SupportApiConfig {
-  /// e.g. 'https://api.example.com'. Empty = backend not available yet.
-  static const baseUrl = '';
+  /// e.g. 'http://192.168.1.10:8010/api' (phone on the same Wi-Fi as the
+  /// dev PC) or the production https URL.
+  static const baseUrl = String.fromEnvironment('SUPPORT_API_BASE_URL');
+  static const token = String.fromEnvironment('SUPPORT_API_TOKEN');
+
+  static bool get isConfigured => baseUrl.isNotEmpty;
 
   /// Path of the endpoint that receives reports.
-  static const ticketsPath = '/support/tickets';
+  static const ticketsPath = 'support/tickets';
 
   static const timeout = Duration(seconds: 30);
 }
 
-/// Placeholder until the backend exists: pretends the report was sent so
-/// the whole flow can be used and tested end to end.
+/// Placeholder when no backend is configured: pretends the report was sent
+/// so the whole flow still works.
 class PendingSupportApi implements SupportApi {
   const PendingSupportApi();
 
   @override
-  Future<void> submit(SupportTicket ticket) {
-    // Lets the payload be checked in `flutter logs` before a backend exists.
+  Future<SupportReceipt> submit(SupportTicket ticket) async {
+    // Lets the payload be checked in `flutter logs` without a backend.
     if (kDebugMode) {
       debugPrint(
-        'Support ticket (no backend yet, not sent): ${ticket.toFormFields()} '
-        '+ ${ticket.screenshotPaths.length} screenshot(s)',
+        'Support ticket (no backend configured, not sent): '
+        '${ticket.toFormFields()} + ${ticket.screenshotPaths.length} image(s)',
       );
     }
-    return Future.delayed(const Duration(milliseconds: 600));
+    await Future<void>.delayed(const Duration(milliseconds: 600));
+    return const SupportReceipt();
   }
 }
 
-/// Real backend client. Sends one multipart/form-data POST to
-/// `<baseUrl><ticketsPath>` with:
+/// Real backend client: one multipart/form-data POST to
+/// `<baseUrl>/support/tickets` with `Authorization: Bearer <token>` and:
 ///
 /// - `issue`: [SupportIssue.code] (`wrong_calculation`, `alert_not_shown`, `other`)
 /// - `email`: always
 /// - `phone_model`: for the first two issues, as typed by the user
-/// - `description`: for `other`
+/// - `message`: for `other`
 /// - `device_time`: always; phone's local time with offset, ISO 8601
 /// - `app_version`, `app_build`, `android_version`, `android_sdk`,
 ///   `device_manufacturer`, `device_brand`, `device_model`: read from
 ///   Android automatically; omitted only if they couldn't be read
-/// - `screenshots`: zero or more image files
+/// - `images`: 0–5 image files, the field repeated once per image
 ///
-/// Any 2xx response counts as success. Adjust the field names here if the
-/// backend expects different ones.
+/// 201 → `{"id": "...", "folio": "SOP-000003"}`. 400 field errors, 401 bad
+/// token/app disabled, 429 rate limited.
 class HttpSupportApi implements SupportApi {
-  HttpSupportApi(this.baseUrl, {http.Client? client})
-    : _client = client ?? http.Client();
+  HttpSupportApi(Uri baseUrl, {required this.token, http.Client? client})
+    : _client = client ?? http.Client(),
+      // Trailing slash so the relative path is appended, not swapped in.
+      baseUrl = baseUrl.path.endsWith('/')
+          ? baseUrl
+          : baseUrl.replace(path: '${baseUrl.path}/');
 
   final Uri baseUrl;
+  final String token;
   final http.Client _client;
 
+  /// Formats the backend accepts, by file extension.
+  static const imageTypes = {
+    'jpg': 'jpeg',
+    'jpeg': 'jpeg',
+    'png': 'png',
+    'webp': 'webp',
+    'gif': 'gif',
+  };
+
   @override
-  Future<void> submit(SupportTicket ticket) async {
-    final request = http.MultipartRequest(
-      'POST',
-      baseUrl.resolve(SupportApiConfig.ticketsPath),
-    )..fields.addAll(ticket.toFormFields());
+  Future<SupportReceipt> submit(SupportTicket ticket) async {
+    final request =
+        http.MultipartRequest(
+            'POST',
+            baseUrl.resolve(SupportApiConfig.ticketsPath),
+          )
+          // Content-Type with the multipart boundary is set by the request.
+          ..headers['Authorization'] = 'Bearer $token'
+          ..headers['Accept'] = 'application/json'
+          ..fields.addAll(ticket.toFormFields());
     for (final path in ticket.screenshotPaths) {
-      request.files.add(await http.MultipartFile.fromPath('screenshots', path));
+      final ext = path.split('.').last.toLowerCase();
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'images',
+          path,
+          contentType: MediaType('image', imageTypes[ext] ?? 'jpeg'),
+        ),
+      );
     }
 
-    final http.StreamedResponse response;
+    final http.Response response;
     try {
-      response = await _client.send(request).timeout(SupportApiConfig.timeout);
+      response = await http.Response.fromStream(
+        await _client.send(request).timeout(SupportApiConfig.timeout),
+      );
     } on Exception catch (e) {
-      throw SupportApiException('No se pudo conectar: $e');
+      throw SupportApiException(SupportFailure.unavailable, '$e');
     }
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      final body = await response.stream.bytesToString();
-      throw SupportApiException('HTTP ${response.statusCode}: $body');
+
+    final code = response.statusCode;
+    if (code >= 200 && code < 300) {
+      final body = _json(response.body);
+      return SupportReceipt(
+        id: body['id'] as String?,
+        folio: body['folio'] as String?,
+      );
+    }
+    throw SupportApiException(switch (code) {
+      429 => SupportFailure.rateLimited,
+      400 => SupportFailure.invalid,
+      _ => SupportFailure.unavailable,
+    }, 'HTTP $code: ${response.body}');
+  }
+
+  static Map<String, Object?> _json(String body) {
+    try {
+      final decoded = jsonDecode(body);
+      return decoded is Map<String, Object?> ? decoded : const {};
+    } on FormatException {
+      return const {};
     }
   }
 }

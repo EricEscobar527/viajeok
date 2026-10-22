@@ -86,5 +86,16 @@
   "btnDisableService": "Desactivar",
   "dialogDisableServiceTitle": "¿Desactivar la Lectura de pantalla?",
   "dialogDisableServiceText": "Algunas apps de banco (como Nu) no abren mientras está activa. Al desactivarla también se detiene el análisis.\n\nPara volver a usarlo, presiona Iniciar análisis y actívala otra vez en Ajustes.",
-  "serviceDisabledNotice": "Lectura de pantalla desactivada. Ya puedes abrir tu app de banco."
+  "serviceDisabledNotice": "Lectura de pantalla desactivada. Ya puedes abrir tu app de banco.",
+  "supportSentFolio": "Tu folio es {folio}.",
+  "@supportSentFolio": {
+    "placeholders": {
+      "folio": {
+        "type": "String"
+      }
+    }
+  },
+  "supportSendRateLimited": "Enviaste demasiados reportes. Intenta de nuevo más tarde.",
+  "supportSendInvalid": "No se pudo enviar: revisa los datos y las imágenes.",
+  "supportImageFormat": "Algunas imágenes no se agregaron: usa capturas JPG o PNG."
 }

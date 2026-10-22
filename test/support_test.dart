@@ -7,15 +7,16 @@ import 'package:analisis_viaje/l10n/app_localizations.dart';
 import 'package:analisis_viaje/support/support_screen.dart';
 
 class _FakeApi implements SupportApi {
-  _FakeApi({this.fail = false});
+  _FakeApi({this.failure});
 
-  final bool fail;
+  final SupportFailure? failure;
   final sent = <SupportTicket>[];
 
   @override
-  Future<void> submit(SupportTicket ticket) async {
-    if (fail) throw const SupportApiException('offline');
+  Future<SupportReceipt> submit(SupportTicket ticket) async {
+    if (failure != null) throw SupportApiException(failure!, 'fake');
     sent.add(ticket);
+    return const SupportReceipt(id: 'x', folio: 'SOP-000042');
   }
 }
 
@@ -90,14 +91,17 @@ void main() {
 
     expect(find.text('Estamos revisando la información'), findsOneWidget);
     expect(
-      find.text('El tiempo promedio de respuesta es de 12 horas.'),
+      find.text(
+        'El tiempo promedio de respuesta es de 12 horas.\n\n'
+        'Tu folio es SOP-000042.',
+      ),
       findsOneWidget,
     );
     final ticket = api.sent.single;
     expect(ticket.issue, SupportIssue.wrongCalculation);
     expect(ticket.phoneModel, 'Realme 12 Pro');
     expect(ticket.email, 'chofer@correo.com');
-    expect(ticket.description, isNull);
+    expect(ticket.message, isNull);
   });
 
   testWidgets('alert problem uses the same detailed fields', (tester) async {
@@ -133,14 +137,14 @@ void main() {
     expect(find.text('Estamos revisando la información'), findsOneWidget);
     final ticket = api.sent.single;
     expect(ticket.issue, SupportIssue.other);
-    expect(ticket.description, 'La app se cierra sola');
+    expect(ticket.message, 'La app se cierra sola');
     expect(ticket.email, 'chofer@correo.com');
     expect(ticket.phoneModel, isNull);
     expect(ticket.screenshotPaths, isEmpty);
   });
 
   testWidgets('a failed send keeps the form and says so', (tester) async {
-    await _open(tester, _FakeApi(fail: true));
+    await _open(tester, _FakeApi(failure: SupportFailure.unavailable));
     await _choose(tester, _other);
     final fields = find.byType(TextFormField);
     await tester.enterText(fields.at(0), 'Algo falló');
@@ -154,5 +158,20 @@ void main() {
     );
     expect(find.text('Estamos revisando la información'), findsNothing);
     expect(find.text('Algo falló'), findsOneWidget);
+  });
+
+  testWidgets('too many reports gets its own message', (tester) async {
+    await _open(tester, _FakeApi(failure: SupportFailure.rateLimited));
+    await _choose(tester, _other);
+    final fields = find.byType(TextFormField);
+    await tester.enterText(fields.at(0), 'Algo falló');
+    await tester.enterText(fields.at(1), 'chofer@correo.com');
+    await tester.tap(find.text('Enviar'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('Enviaste demasiados reportes. Intenta de nuevo más tarde.'),
+      findsOneWidget,
+    );
   });
 }

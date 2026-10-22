@@ -58,5 +58,9 @@
   "btnDisableService": "Turn off",
   "dialogDisableServiceTitle": "Turn off Screen reading?",
   "dialogDisableServiceText": "Some banking apps (like Nu) won't open while it's on. Turning it off also stops the analysis.\n\nTo use it again, press Start analysis and turn it back on in Settings.",
-  "serviceDisabledNotice": "Screen reading is off. You can open your banking app now."
+  "serviceDisabledNotice": "Screen reading is off. You can open your banking app now.",
+  "supportSentFolio": "Your ticket number is {folio}.",
+  "supportSendRateLimited": "You've sent too many reports. Try again later.",
+  "supportSendInvalid": "Couldn't send it: check the details and images.",
+  "supportImageFormat": "Some images weren't added: use JPG or PNG screenshots."
 }
