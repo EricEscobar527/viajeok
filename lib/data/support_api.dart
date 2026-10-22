@@ -1,4 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+
+import '../platform/device_info.dart';
 
 /// What the user picked in "¿Qué problema tienes?". The [code] is what the
 /// backend receives, so keep it stable even if the labels change.
@@ -17,23 +20,65 @@ enum SupportIssue {
   bool get needsDeviceDetails => this != SupportIssue.other;
 }
 
-/// A support report as the form collects it.
+/// A support report: what the user filled in, plus app/phone details
+/// collected automatically.
 class SupportTicket {
   const SupportTicket({
     required this.issue,
+    required this.sentAt,
     this.phoneModel,
     this.email,
     this.description,
     this.screenshotPaths = const [],
+    this.device,
   });
 
   final SupportIssue issue;
+
+  /// The phone's local date/time when the report was sent.
+  final DateTime sentAt;
+
+  /// As typed by the user.
   final String? phoneModel;
   final String? email;
   final String? description;
 
   /// Local file paths of the screenshots the user picked.
   final List<String> screenshotPaths;
+
+  /// App version, Android version and brand/model as Android reports them.
+  /// Null if they couldn't be read.
+  final DeviceInfo? device;
+
+  /// Text fields of the multipart request (see [HttpSupportApi]).
+  Map<String, String> toFormFields() => {
+    'issue': issue.code,
+    'email': ?email,
+    'phone_model': ?phoneModel,
+    'description': ?description,
+    'device_time': isoWithOffset(sentAt),
+    if (device case final d?) ...{
+      'app_version': d.appVersion,
+      'app_build': '${d.appBuild}',
+      'android_version': d.androidVersion,
+      'android_sdk': '${d.androidSdk}',
+      'device_manufacturer': d.manufacturer,
+      'device_brand': d.brand,
+      'device_model': d.model,
+    },
+  };
+}
+
+/// "2026-10-22T13:05:09-06:00": local time with its UTC offset, so the
+/// backend knows both the user's clock and the real instant.
+String isoWithOffset(DateTime t) {
+  String two(int n) => n.toString().padLeft(2, '0');
+  final offset = t.timeZoneOffset;
+  final sign = offset.isNegative ? '-' : '+';
+  final abs = offset.abs();
+  return '${t.year.toString().padLeft(4, '0')}-${two(t.month)}-${two(t.day)}'
+      'T${two(t.hour)}:${two(t.minute)}:${two(t.second)}'
+      '$sign${two(abs.inHours)}:${two(abs.inMinutes % 60)}';
 }
 
 class SupportApiException implements Exception {
@@ -74,8 +119,16 @@ class PendingSupportApi implements SupportApi {
   const PendingSupportApi();
 
   @override
-  Future<void> submit(SupportTicket ticket) =>
-      Future.delayed(const Duration(milliseconds: 600));
+  Future<void> submit(SupportTicket ticket) {
+    // Lets the payload be checked in `flutter logs` before a backend exists.
+    if (kDebugMode) {
+      debugPrint(
+        'Support ticket (no backend yet, not sent): ${ticket.toFormFields()} '
+        '+ ${ticket.screenshotPaths.length} screenshot(s)',
+      );
+    }
+    return Future.delayed(const Duration(milliseconds: 600));
+  }
 }
 
 /// Real backend client. Sends one multipart/form-data POST to
@@ -83,8 +136,12 @@ class PendingSupportApi implements SupportApi {
 ///
 /// - `issue`: [SupportIssue.code] (`wrong_calculation`, `alert_not_shown`, `other`)
 /// - `email`: always
-/// - `phone_model`: for the first two issues
+/// - `phone_model`: for the first two issues, as typed by the user
 /// - `description`: for `other`
+/// - `device_time`: always; phone's local time with offset, ISO 8601
+/// - `app_version`, `app_build`, `android_version`, `android_sdk`,
+///   `device_manufacturer`, `device_brand`, `device_model`: read from
+///   Android automatically; omitted only if they couldn't be read
 /// - `screenshots`: zero or more image files
 ///
 /// Any 2xx response counts as success. Adjust the field names here if the
@@ -98,17 +155,10 @@ class HttpSupportApi implements SupportApi {
 
   @override
   Future<void> submit(SupportTicket ticket) async {
-    final request =
-        http.MultipartRequest(
-            'POST',
-            baseUrl.resolve(SupportApiConfig.ticketsPath),
-          )
-          ..fields['issue'] = ticket.issue.code
-          ..fields.addAll({
-            if (ticket.phoneModel != null) 'phone_model': ticket.phoneModel!,
-            if (ticket.email != null) 'email': ticket.email!,
-            if (ticket.description != null) 'description': ticket.description!,
-          });
+    final request = http.MultipartRequest(
+      'POST',
+      baseUrl.resolve(SupportApiConfig.ticketsPath),
+    )..fields.addAll(ticket.toFormFields());
     for (final path in ticket.screenshotPaths) {
       request.files.add(await http.MultipartFile.fromPath('screenshots', path));
     }

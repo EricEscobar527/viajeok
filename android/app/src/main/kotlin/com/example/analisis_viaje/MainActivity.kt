@@ -47,6 +47,8 @@ class MainActivity : FlutterActivity() {
                         reader.running = call.arguments as Boolean
                         result.success(null)
                     }
+                    // Attached to support reports (lib/platform/device_info.dart).
+                    "deviceInfo" -> result.success(deviceInfo())
                     else -> result.notImplemented()
                 }
             }
@@ -54,5 +56,20 @@ class MainActivity : FlutterActivity() {
 
     private fun openServiceSettings() {
         startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+    }
+
+    private fun deviceInfo(): Map<String, Any?> {
+        val pkg = packageManager.getPackageInfo(packageName, 0)
+        @Suppress("DEPRECATION")
+        val build = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) pkg.longVersionCode else pkg.versionCode.toLong()
+        return mapOf(
+            "appVersion" to pkg.versionName,
+            "appBuild" to build,
+            "androidVersion" to Build.VERSION.RELEASE,
+            "androidSdk" to Build.VERSION.SDK_INT,
+            "manufacturer" to Build.MANUFACTURER,
+            "brand" to Build.BRAND,
+            "model" to Build.MODEL,
+        )
     }
 }

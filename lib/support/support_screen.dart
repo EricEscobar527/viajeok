@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../data/support_api.dart';
 import '../l10n/app_localizations.dart';
+import '../platform/device_info.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common.dart';
 
@@ -65,6 +66,8 @@ class _SupportScreenState extends State<SupportScreen> {
       await widget.api.submit(
         SupportTicket(
           issue: issue,
+          sentAt: DateTime.now(),
+          device: await DeviceInfo.load(),
           phoneModel: detailed ? _phoneModel.text.trim() : null,
           email: _email.text.trim(),
           description: detailed ? null : _description.text.trim(),
