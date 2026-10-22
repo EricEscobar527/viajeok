@@ -1,7 +1,6 @@
 package com.example.analisis_viaje
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import com.example.analisis_viaje.reader.ReaderState
@@ -15,23 +14,6 @@ class MainActivity : FlutterActivity() {
         super.configureFlutterEngine(flutterEngine)
         val messenger = flutterEngine.dartExecutor.binaryMessenger
 
-        MethodChannel(messenger, "analisis_viaje/permissions")
-            .setMethodCallHandler { call, result ->
-                when (call.method) {
-                    "canDrawOverlays" -> result.success(canDrawOverlays())
-                    "openOverlaySettings" -> {
-                        startActivity(
-                            Intent(
-                                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                                Uri.parse("package:$packageName"),
-                            )
-                        )
-                        result.success(null)
-                    }
-                    else -> result.notImplemented()
-                }
-            }
-
         // Bridge to TripReaderService (lib/platform/trip_reader.dart).
         val reader = ReaderState(this)
         MethodChannel(messenger, "analisis_viaje/reader")
@@ -39,26 +21,38 @@ class MainActivity : FlutterActivity() {
                 when (call.method) {
                     "isServiceEnabled" -> result.success(TripReaderService.isEnabled(this))
                     "openServiceSettings" -> {
-                        startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+                        openServiceSettings()
                         result.success(null)
                     }
                     "setConfig" -> {
                         reader.setConfig(call.arguments as Map<*, *>)
                         result.success(null)
                     }
+                    // Banking apps (e.g. Nu) refuse to open while an accessibility
+                    // service is on, so users need a one-tap way to turn it off.
+                    // true = turned off directly; false = Settings was opened.
+                    "disableService" -> {
+                        reader.running = false
+                        val service = TripReaderService.instance
+                        if (service != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                            service.turnOff()
+                            result.success(true)
+                        } else {
+                            openServiceSettings()
+                            result.success(false)
+                        }
+                    }
                     "isRunning" -> result.success(reader.running)
                     "setRunning" -> {
-                        val run = call.arguments as Boolean
-                        if (run && !reader.running) reader.resetStats()
-                        reader.running = run
+                        reader.running = call.arguments as Boolean
                         result.success(null)
                     }
-                    "getStats" -> result.success(reader.stats())
                     else -> result.notImplemented()
                 }
             }
     }
 
-    private fun canDrawOverlays(): Boolean =
-        Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(this)
+    private fun openServiceSettings() {
+        startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+    }
 }

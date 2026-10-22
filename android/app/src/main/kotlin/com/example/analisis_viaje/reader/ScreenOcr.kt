@@ -43,26 +43,30 @@ class ScreenOcr(private val service: AccessibilityService, private val debug: Bo
                 return@capture
             }
             if (debug) saveForDebug(bitmap)
-            val skip = exclude?.let { toImage(it, bitmap) }
-            recognizer.process(InputImage.fromBitmap(bitmap, 0))
-                .addOnSuccessListener { result ->
-                    onLines(
-                        result.textBlocks.flatMap { it.lines }
-                            .filter { line -> skip == null || line.boundingBox?.let { Rect.intersects(it, skip) } != true }
-                            .sortedBy { it.boundingBox?.top ?: 0 }
-                            .map { it.text },
-                    )
-                }
-                .addOnFailureListener {
-                    Log.w(TAG, "ocr failed", it)
-                    onLines(emptyList())
-                }
-                .addOnCompleteListener {
-                    bitmap.recycle()
-                    busy = false
-                }
+            recognize(bitmap, exclude?.let { toImage(it, bitmap) }) { lines ->
+                bitmap.recycle()
+                busy = false
+                onLines(lines)
+            }
         }
         return true
+    }
+
+    /** OCR of an already captured image; lines overlapping [skip] are dropped. */
+    fun recognize(bitmap: Bitmap, skip: Rect? = null, onLines: (List<String>) -> Unit) {
+        recognizer.process(InputImage.fromBitmap(bitmap, 0))
+            .addOnSuccessListener { result ->
+                onLines(
+                    result.textBlocks.flatMap { it.lines }
+                        .filter { line -> skip == null || line.boundingBox?.let { Rect.intersects(it, skip) } != true }
+                        .sortedBy { it.boundingBox?.top ?: 0 }
+                        .map { it.text },
+                )
+            }
+            .addOnFailureListener {
+                Log.w(TAG, "ocr failed", it)
+                onLines(emptyList())
+            }
     }
 
     @RequiresApi(Build.VERSION_CODES.R)
@@ -75,8 +79,8 @@ class ScreenOcr(private val service: AccessibilityService, private val debug: Bo
                     val hw = Bitmap.wrapHardwareBuffer(shot.hardwareBuffer, shot.colorSpace)
                     shot.hardwareBuffer.close()
                     if (hw == null) return onBitmap(null)
-                    // Skip the top of the screen: the offer card sits lower,
-                    // and our own popup lives up there.
+                    // Skip the status bar. Our own popup is removed by bounds
+                    // instead, since tall cards (Uber) start near the top.
                     val top = (hw.height * CROP_TOP).toInt()
                     cropTopPx = top
                     val soft = hw.copy(Bitmap.Config.ARGB_8888, false)
@@ -123,7 +127,7 @@ class ScreenOcr(private val service: AccessibilityService, private val debug: Bo
     private companion object {
         const val TAG = "AnalisisViaje"
         const val MIN_INTERVAL_MS = 1000L
-        const val CROP_TOP = 0.2
+        const val CROP_TOP = 0.05
         const val SCALE = 2
         const val KEEP_DEBUG_SHOTS = 40
     }

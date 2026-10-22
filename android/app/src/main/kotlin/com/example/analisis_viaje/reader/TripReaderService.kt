@@ -14,7 +14,7 @@ import android.view.accessibility.AccessibilityNodeInfo
 import android.view.accessibility.AccessibilityWindowInfo
 
 /**
- * "Lectura de pantalla": reads the trip offer from Uber/DiDi while analysis
+ * "Lectura de pantalla": reads the trip offer from DiDi/Uber while analysis
  * is running, and shows [TripOverlay] with the verdict. Uses the apps'
  * accessibility text when they expose it, and falls back to [ScreenOcr]
  * when an offer card is on screen without readable text (DiDi).
@@ -26,7 +26,7 @@ class TripReaderService : AccessibilityService() {
     private val handler = Handler(Looper.getMainLooper())
     private var debug = false
 
-    /** Identifies the offer on screen so one offer is counted only once. */
+    /** The offer the popup is showing, so each card is shown only once. */
     private var currentOffer: TripOffer? = null
     private var scanQueued = false
     private var polling = false
@@ -49,7 +49,9 @@ class TripReaderService : AccessibilityService() {
             handler.postDelayed(this, POLL_MS)
         }
     }
+    private var hidePending = false
     private val hide = Runnable {
+        hidePending = false
         overlay.hide()
         currentOffer = null
     }
@@ -60,6 +62,7 @@ class TripReaderService : AccessibilityService() {
     }
 
     override fun onServiceConnected() {
+        instance = this
         state = ReaderState(this)
         overlay = TripOverlay(this)
         debug = applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0
@@ -117,7 +120,14 @@ class TripReaderService : AccessibilityService() {
         ocr.read(exclude = overlay.screenBounds()) { lines ->
             val offer = TripParser.parse(lines)
             if (debug) Log.d(TAG, "ocr lines(${lines.size})=${lines.joinToString(" | ")} offer=$offer")
-            if (offer != null) showOffer(offer) else offerGone()
+            when {
+                offer != null -> showOffer(offer)
+                // Our popup can cover the fare on tall cards (Uber); the same
+                // legs still on screen means it's the same offer.
+                currentOffer?.legs == TripParser.legs(lines) && currentOffer != null ->
+                    offerStillVisible()
+                else -> offerGone()
+            }
         }
     }
 
@@ -127,24 +137,60 @@ class TripReaderService : AccessibilityService() {
         handler.postDelayed(scan, delay)
     }
 
-    // Card gone (accepted, rejected or expired): hide shortly after.
+    // Card gone (accepted, rejected or expired): hide shortly after the last
+    // time it was seen. Later "gone" reads must not push the hide back, or
+    // the popup would linger as long as polling keeps finding nothing.
     private fun offerGone() {
-        if (overlay.isShowing) {
-            handler.removeCallbacks(hide)
+        if (overlay.isShowing && !hidePending) {
+            hidePending = true
             handler.postDelayed(hide, HIDE_AFTER_GONE_MS)
         }
     }
 
+    private fun offerStillVisible() {
+        handler.removeCallbacks(hide)
+        hidePending = false
+    }
+
     private fun showOffer(offer: TripOffer) {
         if (!state.running) return
-        handler.removeCallbacks(hide)
-        if (offer != currentOffer) {
+        offerStillVisible()
+        // A misread fare on a later poll of the same card isn't a new offer.
+        if (offer.legs != currentOffer?.legs) {
             currentOffer = offer
-            val failed = TripEvaluator.failed(offer, state.filters)
-            state.count(accepted = failed.isEmpty())
-            overlay.show(offer, failed)
+            overlay.show(offer, TripEvaluator.failed(offer, state.filters), frontPackage)
         }
-        handler.postDelayed(hide, MAX_SHOW_MS)
+    }
+
+    /**
+     * Debug builds only: runs a saved screenshot through OCR → parser →
+     * filters → popup. Lets Uber/DiDi cards be checked
+     * on a real phone without a live offer (see DebugOfferActivity).
+     */
+    fun analyzeForDebug(bitmap: android.graphics.Bitmap, app: String, onResult: (String) -> Unit) {
+        if (!debug) return
+        ocr.recognize(bitmap) { lines ->
+            val offer = TripParser.parse(lines)
+            val failed = offer?.let { TripEvaluator.failed(it, state.filters) }
+            Log.d(TAG, "debug-image lines(${lines.size})=${lines.joinToString(" | ")}")
+            Log.d(TAG, "debug-image offer=$offer failed=$failed")
+            if (offer != null) overlay.show(offer, failed!!, app) else overlay.hide()
+            onResult("offer=$offer failed=$failed")
+        }
+    }
+
+    /** Removes the popup and switches this service off in Android settings. */
+    @androidx.annotation.RequiresApi(android.os.Build.VERSION_CODES.N)
+    fun turnOff() {
+        handler.removeCallbacksAndMessages(null)
+        overlay.hide()
+        currentOffer = null
+        disableSelf()
+    }
+
+    /** Debug builds only: the replayed screenshot left the screen. */
+    fun hideDebugPopup() {
+        if (debug) handler.post(hide)
     }
 
 
@@ -167,6 +213,7 @@ class TripReaderService : AccessibilityService() {
     override fun onInterrupt() {}
 
     override fun onDestroy() {
+        if (instance === this) instance = null
         handler.removeCallbacksAndMessages(null)
         if (::overlay.isInitialized) overlay.hide()
         if (::ocr.isInitialized) ocr.close()
@@ -180,11 +227,13 @@ class TripReaderService : AccessibilityService() {
     companion object {
         private const val TAG = "AnalisisViaje"
         private const val SCAN_DELAY_MS = 250L
-        private const val HIDE_AFTER_GONE_MS = 1500L
-        private const val MAX_SHOW_MS = 30_000L
+        private const val HIDE_AFTER_GONE_MS = 2500L
         private const val MAX_DEPTH = 40
         private const val POLL_MS = 1200L
 
+        /** The running service, for the debug-only image check. */
+        var instance: TripReaderService? = null
+            private set
 
         fun isEnabled(context: Context): Boolean {
             val me = ComponentName(context, TripReaderService::class.java).flattenToString()

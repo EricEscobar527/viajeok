@@ -10,117 +10,61 @@ class AppLocalizationsEs extends AppLocalizations {
   AppLocalizationsEs([String locale = 'es']) : super(locale);
 
   @override
-  String get btnSetupNow => 'Configurar ahora';
-
-  @override
-  String get btnNext => 'Siguiente';
-
-  @override
-  String get btnOpenSettings => 'Abrir configuración';
-
-  @override
-  String get btnStartEarning => '¡Empezar a ganar!';
-
-  @override
   String welcomeTitle(String appName) {
-    return '¡Bienvenido a\n$appName!';
+    return 'Bienvenido a\n$appName';
   }
 
   @override
   String get welcomeText =>
-      'Vamos a configurarlo en 1 minuto\npara que funcione perfecto mientras manejas.';
+      'Te decimos al instante si una oferta de DiDi o Uber te conviene.';
 
   @override
-  String get featureTripAnalysis => 'Análisis de cada viaje';
+  String get featureReadTitle => 'Lee cada oferta de DiDi y Uber';
 
   @override
-  String get featureInYourApps => 'En tus apps de transporte favoritas';
+  String get featureReadText =>
+      'Precio, distancia y tiempo, sin que hagas nada';
 
   @override
-  String get featurePopupOverApp => 'Popup sobre tu app de transporte';
+  String get featureVerdictTitle => 'Verde o rojo al instante';
 
   @override
-  String get featureWithoutLeaving => 'Sin salir de tu app de trabajo';
+  String get featureVerdictText => 'Según los mínimos que tú defines';
 
   @override
-  String get featureGreenRed => 'Verde o rojo al instante';
+  String get featureOverlayTitle => 'Sin salir de tu app';
 
   @override
-  String get featureByFilters => 'Según tus filtros de ganancia';
+  String get featureOverlayText => 'Un aviso pequeño encima de la oferta';
 
   @override
-  String get overlayTitle => 'Superposición sobre apps';
+  String get btnStart => 'Empezar';
 
   @override
-  String get overlayText =>
-      'Permite mostrar el popup de ganancias encima de tus apps de transporte mientras conduces, sin tener que cambiar de app.';
+  String get supportTitle => 'Soporte';
 
   @override
-  String get overlayGranted => 'Permiso concedido — el popup podrá aparecer.';
+  String get btnStartAnalysis => 'Iniciar análisis';
 
   @override
-  String get overlayRequired =>
-      'Este permiso es obligatorio. Sin él, el popup no puede aparecer.';
+  String get btnStopAnalysis => 'Detener análisis';
 
   @override
-  String get overlayPreviewTitle => 'Así se verá mientras manejas:';
+  String get panelHintIdle =>
+      'Después abre DiDi o Uber; te avisamos en cada oferta.';
 
   @override
-  String get overlayPreviewText =>
-      '← Se pone verde si el viaje conviene y rojo si no, según tus filtros.';
+  String get panelRunning => 'Analizando ofertas';
 
   @override
-  String get doneTitle => '¡Todo listo!';
+  String get panelHintRunning => 'Abre DiDi o Uber y espera tus ofertas.';
 
   @override
-  String doneText(String appName) {
-    return '$appName está configurado.\nPresiona ► Reproducir y empieza a analizar tus viajes.';
-  }
+  String get filtersTitle => 'Mis mínimos';
 
   @override
-  String get featureAutoAnalysis => 'Análisis automático de viajes';
-
-  @override
-  String get featurePopupOverApps => 'Popup encima de tus apps';
-
-  @override
-  String get featureWhileDriving => 'Funciona mientras manejas';
-
-  @override
-  String get tabHome => 'Inicio';
-
-  @override
-  String get tabConfig => 'Config';
-
-  @override
-  String get tabSupport => 'Soporte';
-
-  @override
-  String get supportText => 'Ayuda y contacto. Próximamente.';
-
-  @override
-  String get panelReady => 'Listo para iniciar';
-
-  @override
-  String get panelRunning => 'Analizando viajes…';
-
-  @override
-  String get panelTapToStart => 'Toca para iniciar el análisis';
-
-  @override
-  String get panelTapToStop => 'Toca para detener el análisis';
-
-  @override
-  String get statTotal => 'Total';
-
-  @override
-  String get statAccept => 'Aceptar';
-
-  @override
-  String get statReject => 'Rechazar';
-
-  @override
-  String get filtersTitle => 'Filtros inteligentes';
+  String get filtersSubtitle =>
+      'La oferta sale en verde si cumple todos los que actives.';
 
   @override
   String filtersActive(int count) {
@@ -129,6 +73,7 @@ class AppLocalizationsEs extends AppLocalizations {
       locale: localeName,
       other: '$count activos',
       one: '1 activo',
+      zero: 'Ninguno activo',
     );
     return '$_temp0';
   }
@@ -160,36 +105,114 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get filterOff => 'Desactivado';
+  String get filterOff => 'Apagado';
 
   @override
-  String get configAppsTitle => 'Aplicaciones monitoreadas';
+  String get dialogCancel => 'Ahora no';
 
   @override
-  String get configAppsSubtitle => 'Toca para activar o desactivar el cálculo';
-
-  @override
-  String get dialogCancel => 'Cancelar';
+  String get btnOpenSettings => 'Abrir ajustes';
 
   @override
   String get dialogEnableServiceTitle => 'Activa la Lectura de pantalla';
 
   @override
   String get dialogEnableServiceText =>
-      'En Ajustes → Accesibilidad, busca \"Análisis Viaje – Lectura de viajes\" y actívalo. Después regresa y presiona ▶.\n\nSi aparece como restringido: Ajustes → Apps → Análisis Viaje → ⋮ → Permitir ajustes restringidos.';
+      'Es lo que permite leer las ofertas de DiDi y Uber. Solo se activa una vez.\n\nEn Ajustes → Accesibilidad, busca \"Análisis Viaje – Lectura de viajes\" y actívalo. Después regresa y presiona Iniciar.\n\nSi aparece como restringido: Ajustes → Apps → Análisis Viaje → ⋮ → Permitir ajustes restringidos.';
 
   @override
-  String get readingTitle => 'Lectura de pantalla';
+  String get supportIssueLabel => '¿Qué problema tienes?';
 
   @override
-  String readingText(String appName) {
-    return '$appName lee el precio y los km de cada oferta en DiDi y Uber para decirte si conviene. Se activa una sola vez y sigue funcionando aunque bloquees el teléfono.';
+  String get supportIssueWrongCalculation =>
+      'Los cálculos se muestran incorrectos';
+
+  @override
+  String get supportIssueAlertNotShown =>
+      'No sale la alerta en DiDi o Uber aunque Análisis Viaje está encendido';
+
+  @override
+  String get supportIssueOther => 'Otro problema';
+
+  @override
+  String get supportIssueRequired => 'Selecciona qué problema tienes';
+
+  @override
+  String get supportPhoneModel => 'Modelo del celular';
+
+  @override
+  String get supportPhoneModelHint => 'Ej. Samsung Galaxy A54';
+
+  @override
+  String get supportScreenshots => 'Capturas de pantalla';
+
+  @override
+  String get supportAddScreenshot => 'Agregar';
+
+  @override
+  String get supportRemoveScreenshot => 'Quitar captura';
+
+  @override
+  String supportScreenshotsHint(int max) {
+    return 'Hasta $max imágenes. Ayudan a encontrar el problema más rápido.';
   }
 
   @override
-  String get readingEnabled => 'Lectura de pantalla activada — todo listo.';
+  String get supportEmail => 'Correo electrónico';
 
   @override
-  String get readingRequired =>
-      'Este permiso es obligatorio. Sin él, la app no puede leer las ofertas.';
+  String get supportEmailHint => 'tucorreo@ejemplo.com';
+
+  @override
+  String get supportEmailInvalid => 'Escribe un correo válido';
+
+  @override
+  String get supportDescription => '¿Qué problema tuviste?';
+
+  @override
+  String get supportDescriptionHint => 'Cuéntanos qué pasó';
+
+  @override
+  String get supportFieldRequired => 'Este campo es obligatorio';
+
+  @override
+  String get supportSend => 'Enviar';
+
+  @override
+  String get supportSending => 'Enviando…';
+
+  @override
+  String get supportSendError =>
+      'No se pudo enviar. Revisa tu conexión e inténtalo de nuevo.';
+
+  @override
+  String get supportSentTitle => 'Estamos revisando la información';
+
+  @override
+  String get supportSentText =>
+      'El tiempo promedio de respuesta es de 12 horas.';
+
+  @override
+  String get supportSentOk => 'Entendido';
+
+  @override
+  String get serviceOnTitle => 'Lectura de pantalla activa';
+
+  @override
+  String get serviceOnText =>
+      'Si una app de banco no te deja entrar, desactívala aquí.';
+
+  @override
+  String get btnDisableService => 'Desactivar';
+
+  @override
+  String get dialogDisableServiceTitle => '¿Desactivar la Lectura de pantalla?';
+
+  @override
+  String get dialogDisableServiceText =>
+      'Algunas apps de banco (como Nu) no abren mientras está activa. Al desactivarla también se detiene el análisis.\n\nPara volver a usarlo, presiona Iniciar análisis y actívala otra vez en Ajustes.';
+
+  @override
+  String get serviceDisabledNotice =>
+      'Lectura de pantalla desactivada. Ya puedes abrir tu app de banco.';
 }

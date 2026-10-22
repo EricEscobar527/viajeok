@@ -14,7 +14,7 @@ import android.widget.TextView
 import java.util.Locale
 
 /**
- * The green/red card drawn over Uber/DiDi. Uses TYPE_ACCESSIBILITY_OVERLAY,
+ * The green/red card drawn over DiDi/Uber. Uses TYPE_ACCESSIBILITY_OVERLAY,
  * so it needs no extra permission, and is not touchable so taps go through
  * to the ride app underneath.
  */
@@ -30,7 +30,11 @@ class TripOverlay(private val context: Context) {
         Rect(xy[0], xy[1], xy[0] + it.width, xy[1] + it.height)
     }
 
-    fun show(offer: TripOffer, failed: List<FilterKind>) {
+    /**
+     * [app] is the ride app's package; the popup goes where that app's
+     * screen has nothing to tap or read.
+     */
+    fun show(offer: TripOffer, failed: List<FilterKind>, app: String?) {
         hide()
         val accept = failed.isEmpty()
         val color = if (accept) GREEN else RED
@@ -38,14 +42,15 @@ class TripOverlay(private val context: Context) {
         val view = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER_HORIZONTAL
-            setPadding(dp(18), dp(12), dp(18), dp(12))
+            setPadding(dp(16), dp(6), dp(16), dp(8))
             background = GradientDrawable().apply {
                 setColor(BACKGROUND)
-                cornerRadius = dp(18).toFloat()
-                setStroke(dp(4), color)
+                cornerRadius = dp(14).toFloat()
+                setStroke(dp(3), color)
             }
-            addView(text("${money(offer.perKm)}/km", 26f, color, bold = true))
-            addView(text("${money(offer.perHour)}/h", 16f, Color.WHITE, bold = true))
+            // Kept short: it sits at the very top so it doesn't cover the
+            // ride app's card, which on Uber can start near the top.
+            addView(text("${money(offer.perKm)}/km  ·  ${money(offer.perHour)}/h", 20f, color, bold = true))
             addView(
                 text(
                     "${money(offer.fare)} · ${num(offer.totalKm)} km · ${offer.totalMinutes.toInt()} min",
@@ -68,7 +73,7 @@ class TripOverlay(private val context: Context) {
             PixelFormat.TRANSLUCENT,
         ).apply {
             gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
-            y = dp(96)
+            y = topFor(app)
         }
         wm.addView(view, params)
         card = view
@@ -96,13 +101,30 @@ class TripOverlay(private val context: Context) {
 
     private fun money(v: Double) = "$" + String.format(Locale.US, "%.2f", v)
     private fun num(v: Double) = String.format(Locale.US, "%.1f", v)
+    // DiDi has a "Rechazo permitido" button at the top right and its card
+    // starts around 27–40% down, so the popup sits in the map between them.
+    // Uber's card can start right below the status bar (tall UberX cards),
+    // so there the popup hugs the status bar to keep the fare visible.
+    private fun topFor(app: String?): Int = when (app) {
+        ReaderState.DIDI_DRIVER -> (context.resources.displayMetrics.heightPixels * DIDI_TOP).toInt()
+        else -> statusBarHeight() + dp(2)
+    }
+
+    private fun statusBarHeight(): Int {
+        val id = context.resources.getIdentifier("status_bar_height", "dimen", "android")
+        return if (id > 0) context.resources.getDimensionPixelSize(id) else dp(28)
+    }
+
     private fun dp(v: Int) = (v * context.resources.displayMetrics.density).toInt()
 
     private companion object {
         // Same values as AppColors in lib/theme/app_theme.dart.
-        val BACKGROUND = Color.parseColor("#121212")
-        val GREEN = Color.parseColor("#2ECC71")
-        val RED = Color.parseColor("#EF4444")
-        val SECONDARY = Color.parseColor("#9EA3AA")
+        val BACKGROUND = Color.parseColor("#1F2329")
+        val GREEN = Color.parseColor("#34D399")
+        val RED = Color.parseColor("#F87171")
+        val SECONDARY = Color.parseColor("#B4BAC2")
+
+        /** Fraction of the screen height where the popup starts on DiDi. */
+        const val DIDI_TOP = 0.12
     }
 }

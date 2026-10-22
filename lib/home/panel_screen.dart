@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 
 import '../data/app_prefs.dart';
@@ -9,7 +7,8 @@ import '../platform/trip_reader.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common.dart';
 
-/// "Inicio" tab: start/stop analysis, session counters and trip filters.
+/// Home: start/stop the analysis and the minimums (filters) that decide
+/// green vs red.
 class PanelScreen extends StatefulWidget {
   const PanelScreen({super.key, required this.prefs});
 
@@ -21,8 +20,7 @@ class PanelScreen extends StatefulWidget {
 
 class _PanelScreenState extends State<PanelScreen> with WidgetsBindingObserver {
   bool _running = false;
-  TripStats _stats = TripStats.zero;
-  Timer? _poll;
+  bool _serviceEnabled = false;
 
   @override
   void initState() {
@@ -34,12 +32,10 @@ class _PanelScreenState extends State<PanelScreen> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _poll?.cancel();
     super.dispose();
   }
 
-  // Counters change in the background service while the driver is in
-  // Uber/DiDi, so re-read them when coming back.
+  // Re-read the state when coming back from DiDi/Uber or from Settings.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) _refresh();
@@ -47,15 +43,12 @@ class _PanelScreenState extends State<PanelScreen> with WidgetsBindingObserver {
 
   Future<void> _refresh() async {
     final running = await TripReader.isRunning();
-    final stats = await TripReader.stats();
-    if (!mounted) return;
-    setState(() {
-      _running = running;
-      _stats = stats;
-    });
-    _poll?.cancel();
-    if (running) {
-      _poll = Timer.periodic(const Duration(seconds: 2), (_) => _refresh());
+    final enabled = await TripReader.isServiceEnabled();
+    if (mounted) {
+      setState(() {
+        _running = running;
+        _serviceEnabled = enabled;
+      });
     }
   }
 
@@ -64,13 +57,9 @@ class _PanelScreenState extends State<PanelScreen> with WidgetsBindingObserver {
       await TripReader.setRunning(false);
       return _refresh();
     }
+    // First start: this is where the one permission the app needs is asked.
     if (!await TripReader.isServiceEnabled()) {
-      final open = await _confirm(
-        title: (t) => t.dialogEnableServiceTitle,
-        text: (t) => t.dialogEnableServiceText,
-        action: (t) => t.btnOpenSettings,
-      );
-      if (open) await TripReader.openServiceSettings();
+      if (await _askToEnableService()) await TripReader.openServiceSettings();
       return;
     }
     await TripReader.pushConfig(widget.prefs);
@@ -78,18 +67,15 @@ class _PanelScreenState extends State<PanelScreen> with WidgetsBindingObserver {
     await _refresh();
   }
 
-  Future<bool> _confirm({
-    required String Function(AppLocalizations) title,
-    required String Function(AppLocalizations) text,
-    required String Function(AppLocalizations) action,
-  }) async {
+  Future<void> _disableService() async {
     final t = AppLocalizations.of(context);
-    final ok = await showDialog<bool>(
+    final messenger = ScaffoldMessenger.of(context);
+    final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppColors.surface,
-        title: Text(title(t)),
-        content: Text(text(t)),
+        icon: const Icon(Icons.lock_open_outlined),
+        title: Text(t.dialogDisableServiceTitle),
+        content: Text(t.dialogDisableServiceText),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -97,7 +83,37 @@ class _PanelScreenState extends State<PanelScreen> with WidgetsBindingObserver {
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text(action(t)),
+            child: Text(t.btnDisableService),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+    final turnedOff = await TripReader.disableService();
+    // Android updates the enabled-services list a moment later.
+    await Future<void>.delayed(const Duration(milliseconds: 600));
+    await _refresh();
+    if (turnedOff) {
+      messenger.showSnackBar(SnackBar(content: Text(t.serviceDisabledNotice)));
+    }
+  }
+
+  Future<bool> _askToEnableService() async {
+    final t = AppLocalizations.of(context);
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: const Icon(Icons.document_scanner_outlined),
+        title: Text(t.dialogEnableServiceTitle),
+        content: Text(t.dialogEnableServiceText),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(t.dialogCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(t.btnOpenSettings),
           ),
         ],
       ),
@@ -108,168 +124,234 @@ class _PanelScreenState extends State<PanelScreen> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
       children: [
-        _StartCard(running: _running, onToggle: _toggle),
-        const SizedBox(height: 16),
-        _StatsRow(
-          total: _stats.total,
-          accepted: _stats.accepted,
-          rejected: _stats.rejected,
-        ),
-        const SizedBox(height: 16),
-        _FiltersCard(prefs: widget.prefs),
+        _running
+            ? _RunningCard(onStop: _toggle)
+            : _StartButton(onStart: _toggle),
+        if (_serviceEnabled) ...[
+          const SizedBox(height: 12),
+          _ServiceCard(onDisable: _disableService),
+        ],
+        const SizedBox(height: 28),
+        _Filters(prefs: widget.prefs),
       ],
     );
   }
 }
 
-class _StartCard extends StatelessWidget {
-  const _StartCard({required this.running, required this.onToggle});
+/// Shown while the accessibility service is on: some banking apps won't
+/// open until it's off, so it can be turned off here without uninstalling.
+class _ServiceCard extends StatelessWidget {
+  const _ServiceCard({required this.onDisable});
 
-  final bool running;
-  final VoidCallback onToggle;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context);
-
-    return AppCard(
-      borderColor: running ? AppColors.accent : AppColors.border,
-      padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 20),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-            decoration: BoxDecoration(
-              color: AppColors.accentSoft,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: AppColors.accent.withValues(alpha: 0.5),
-              ),
-            ),
-            child: Text(
-              running ? t.panelRunning : t.panelReady,
-              style: const TextStyle(
-                color: AppColors.accent,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-          const SizedBox(height: 24),
-          GestureDetector(
-            onTap: onToggle,
-            child: Container(
-              width: 168,
-              height: 168,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.accentSoft,
-                border: Border.all(
-                  color: AppColors.accent.withValues(alpha: 0.4),
-                  width: 2,
-                ),
-              ),
-              child: Center(
-                child: Container(
-                  width: 124,
-                  height: 124,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: running ? AppColors.red : AppColors.accent,
-                    boxShadow: [
-                      BoxShadow(
-                        color: (running ? AppColors.red : AppColors.accent)
-                            .withValues(alpha: 0.4),
-                        blurRadius: 32,
-                      ),
-                    ],
-                  ),
-                  child: Icon(
-                    running ? Icons.stop_rounded : Icons.play_arrow_rounded,
-                    color: Colors.black,
-                    size: 64,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 24),
-          Text(
-            running ? t.panelTapToStop : t.panelTapToStart,
-            style: const TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 16,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _StatsRow extends StatelessWidget {
-  const _StatsRow({
-    required this.total,
-    required this.accepted,
-    required this.rejected,
-  });
-
-  final int total;
-  final int accepted;
-  final int rejected;
+  final VoidCallback onDisable;
 
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    Widget stat(int value, String label, Color color) => Expanded(
-      child: Column(
-        children: [
-          Text(
-            '$value',
-            style: TextStyle(
-              color: color,
-              fontSize: 24,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          Text(label, style: const TextStyle(color: AppColors.textSecondary)),
-        ],
-      ),
-    );
-    const divider = SizedBox(
-      height: 40,
-      child: VerticalDivider(color: AppColors.border),
-    );
-
     return AppCard(
-      padding: const EdgeInsets.symmetric(vertical: 16),
+      padding: const EdgeInsets.fromLTRB(16, 14, 8, 14),
       child: Row(
         children: [
-          stat(total, t.statTotal, AppColors.textPrimary),
-          divider,
-          stat(accepted, t.statAccept, AppColors.green),
-          divider,
-          stat(rejected, t.statReject, AppColors.red),
+          const IconTile(icon: Icons.document_scanner_outlined),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  t.serviceOnTitle,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  t.serviceOnText,
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 13,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          TextButton(
+            onPressed: onDisable,
+            style: TextButton.styleFrom(foregroundColor: AppColors.red),
+            child: Text(t.btnDisableService),
+          ),
         ],
       ),
     );
   }
 }
 
-class _FiltersCard extends StatefulWidget {
-  const _FiltersCard({required this.prefs});
+/// Idle state: one wide white button.
+class _StartButton extends StatelessWidget {
+  const _StartButton({required this.onStart});
+
+  final VoidCallback onStart;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Material(
+          color: AppColors.accent,
+          borderRadius: BorderRadius.circular(kRadius),
+          child: InkWell(
+            onTap: onStart,
+            borderRadius: BorderRadius.circular(kRadius),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.power_settings_new_rounded,
+                    color: Colors.black,
+                    size: 34,
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Text(
+                      t.btnStartAnalysis,
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                  const Icon(
+                    Icons.arrow_forward_rounded,
+                    color: Colors.black54,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        Text(
+          t.panelHintIdle,
+          style: const TextStyle(color: AppColors.textSecondary),
+        ),
+      ],
+    );
+  }
+}
+
+/// Running state: status line plus an outlined stop button.
+class _RunningCard extends StatelessWidget {
+  const _RunningCard({required this.onStop});
+
+  final VoidCallback onStop;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    return AppCard(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const _LiveDot(),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  t.panelRunning,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            t.panelHintRunning,
+            style: const TextStyle(color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: OutlinedButton.icon(
+              onPressed: onStop,
+              icon: const Icon(Icons.stop_rounded),
+              label: Text(t.btnStopAnalysis),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.red,
+                side: const BorderSide(color: AppColors.red),
+                textStyle: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(kRadius),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Softly pulsing green dot that signals the analysis is live.
+class _LiveDot extends StatefulWidget {
+  const _LiveDot();
+
+  @override
+  State<_LiveDot> createState() => _LiveDotState();
+}
+
+class _LiveDotState extends State<_LiveDot>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 900),
+  )..repeat(reverse: true);
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: Tween(begin: 0.35, end: 1.0).animate(_c),
+      child: Container(
+        width: 12,
+        height: 12,
+        decoration: const BoxDecoration(
+          color: AppColors.green,
+          shape: BoxShape.circle,
+        ),
+      ),
+    );
+  }
+}
+
+class _Filters extends StatefulWidget {
+  const _Filters({required this.prefs});
 
   final AppPrefs prefs;
 
   @override
-  State<_FiltersCard> createState() => _FiltersCardState();
+  State<_Filters> createState() => _FiltersState();
 }
 
-class _FiltersCardState extends State<_FiltersCard> {
+class _FiltersState extends State<_Filters> {
   late List<TripFilter> _filters = widget.prefs.filters;
-  bool _expanded = true;
-  FilterKind? _open;
 
   void _update(TripFilter f) {
     setState(
@@ -283,69 +365,39 @@ class _FiltersCardState extends State<_FiltersCard> {
     final t = AppLocalizations.of(context);
     final active = _filters.where((f) => f.enabled).length;
 
-    return AppCard(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          InkWell(
-            onTap: () => setState(() => _expanded = !_expanded),
-            child: Row(
-              children: [
-                const IconTile(icon: Icons.tune_rounded, circle: true),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    t.filtersTitle,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ),
-                if (active > 0)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.accentSoft,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.accent),
-                    ),
-                    child: Text(
-                      t.filtersActive(active),
-                      style: const TextStyle(
-                        color: AppColors.accent,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                Icon(
-                  _expanded
-                      ? Icons.keyboard_arrow_up_rounded
-                      : Icons.keyboard_arrow_down_rounded,
-                  color: AppColors.textSecondary,
-                ),
-              ],
-            ),
-          ),
-          if (_expanded) ...[
-            const SizedBox(height: 12),
-            for (final f in _filters)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: _FilterTile(
-                  filter: f,
-                  open: _open == f.kind,
-                  onOpen: () =>
-                      setState(() => _open = _open == f.kind ? null : f.kind),
-                  onChanged: _update,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Expanded(
+              child: Text(
+                t.filtersTitle,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
                 ),
               ),
+            ),
+            Text(
+              t.filtersActive(active),
+              style: const TextStyle(color: AppColors.textSecondary),
+            ),
           ],
-        ],
-      ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          t.filtersSubtitle,
+          style: const TextStyle(color: AppColors.textSecondary),
+        ),
+        const SizedBox(height: 12),
+        for (final f in _filters)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: _FilterCard(filter: f, onChanged: _update),
+          ),
+      ],
     );
   }
 }
@@ -355,29 +407,23 @@ String formatFilterValue(AppLocalizations t, FilterKind kind, double v) {
       ? v.toStringAsFixed(0)
       : v.toStringAsFixed(1);
   return switch (kind) {
-    FilterKind.perHour => '\$ $n / h',
-    FilterKind.perKm => '\$ $n / km',
+    FilterKind.perHour => '\$$n / h',
+    FilterKind.perKm => '\$$n / km',
     FilterKind.maxPickupKm => t.filterMaxPickupValue(n),
   };
 }
 
-class _FilterTile extends StatelessWidget {
-  const _FilterTile({
-    required this.filter,
-    required this.open,
-    required this.onOpen,
-    required this.onChanged,
-  });
+/// One minimum: switch to turn it on; value and slider only while on.
+class _FilterCard extends StatelessWidget {
+  const _FilterCard({required this.filter, required this.onChanged});
 
   final TripFilter filter;
-  final bool open;
-  final VoidCallback onOpen;
   final ValueChanged<TripFilter> onChanged;
 
   static const _icons = {
-    FilterKind.perHour: Icons.timer_rounded,
-    FilterKind.perKm: Icons.trending_up_rounded,
-    FilterKind.maxPickupKm: Icons.near_me_rounded,
+    FilterKind.perHour: Icons.schedule_outlined,
+    FilterKind.perKm: Icons.route_outlined,
+    FilterKind.maxPickupKm: Icons.person_pin_circle_outlined,
   };
 
   @override
@@ -391,118 +437,61 @@ class _FilterTile extends StatelessWidget {
       FilterKind.maxPickupKm => (t.filterMaxPickup, t.filterMaxPickupHint),
     };
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      decoration: BoxDecoration(
-        color: AppColors.background,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: on ? AppColors.accent : AppColors.border,
-          width: on ? 1.5 : 1,
-        ),
-      ),
+    return AppCard(
+      padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          InkWell(
-            onTap: onOpen,
-            borderRadius: BorderRadius.circular(16),
-            child: Padding(
-              padding: const EdgeInsets.all(14),
-              child: Row(
-                children: [
-                  IconTile(
-                    icon: _icons[kind]!,
-                    color: on ? AppColors.accent : AppColors.textMuted,
-                    circle: true,
-                    size: 52,
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(label, style: const TextStyle(fontSize: 16)),
-                        Text(
-                          on
-                              ? formatFilterValue(t, kind, filter.value)
-                              : t.filterOff,
-                          style: TextStyle(
-                            color: on ? AppColors.accent : AppColors.textMuted,
-                            fontSize: 17,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
+          Row(
+            children: [
+              IconTile(
+                icon: _icons[kind]!,
+                color: on ? AppColors.accent : AppColors.textMuted,
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                  ),
-                  _OnOffPill(
-                    on: on,
-                    onTap: () => onChanged(filter.copyWith(enabled: !on)),
-                  ),
-                  Icon(
-                    open
-                        ? Icons.keyboard_arrow_up_rounded
-                        : Icons.keyboard_arrow_down_rounded,
-                    color: AppColors.textSecondary,
-                  ),
-                ],
+                    Text(
+                      on
+                          ? formatFilterValue(t, kind, filter.value)
+                          : t.filterOff,
+                      style: TextStyle(
+                        color: on ? AppColors.accent : AppColors.textMuted,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
+              Switch(
+                value: on,
+                onChanged: (v) => onChanged(filter.copyWith(enabled: v)),
+              ),
+            ],
           ),
-          if (open)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    hint,
-                    style: const TextStyle(color: AppColors.textSecondary),
-                  ),
-                  Slider(
-                    value: filter.value,
-                    min: kind.min,
-                    max: kind.max,
-                    divisions: ((kind.max - kind.min) / kind.step).round(),
-                    label: formatFilterValue(t, kind, filter.value),
-                    // Moving the slider implies the user wants the filter on.
-                    onChanged: (v) =>
-                        onChanged(filter.copyWith(value: v, enabled: true)),
-                  ),
-                ],
-              ),
+          if (on) ...[
+            Slider(
+              value: filter.value,
+              min: kind.min,
+              max: kind.max,
+              divisions: ((kind.max - kind.min) / kind.step).round(),
+              label: formatFilterValue(t, kind, filter.value),
+              onChanged: (v) => onChanged(filter.copyWith(value: v)),
             ),
+            Text(
+              hint,
+              style: const TextStyle(color: AppColors.textMuted, fontSize: 13),
+            ),
+          ],
         ],
-      ),
-    );
-  }
-}
-
-class _OnOffPill extends StatelessWidget {
-  const _OnOffPill({required this.on, required this.onTap});
-
-  final bool on;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(right: 6),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: on ? AppColors.accentSoft : AppColors.surfaceHigh,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: on ? AppColors.accent : AppColors.border),
-        ),
-        child: Text(
-          on ? 'ON' : 'OFF',
-          style: TextStyle(
-            color: on ? AppColors.accent : AppColors.textMuted,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
       ),
     );
   }

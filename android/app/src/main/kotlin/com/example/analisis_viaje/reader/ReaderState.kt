@@ -5,7 +5,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 /**
- * Settings pushed from Flutter (via MainActivity) plus session counters,
+ * Settings pushed from Flutter (via MainActivity) plus the running flag,
  * stored natively so the accessibility service can read them without a
  * Flutter engine.
  */
@@ -16,8 +16,8 @@ class ReaderState(context: Context) {
         get() = prefs.getBoolean("running", false)
         set(v) = prefs.edit().putBoolean("running", v).apply()
 
-    val packages: Set<String>
-        get() = prefs.getStringSet("packages", DEFAULT_PACKAGES) ?: DEFAULT_PACKAGES
+    /** The supported ride apps are fixed; the user can't change them. */
+    val packages: Set<String> = setOf(DIDI_DRIVER, UBER_DRIVER)
 
     val filters: List<TripFilter>
         get() {
@@ -29,33 +29,15 @@ class ReaderState(context: Context) {
             }
         }
 
-    /** [config] = {packages: [String], filters: [{kind, enabled, value}]} */
+    /** [config] = {filters: [{kind, enabled, value}]} */
     fun setConfig(config: Map<*, *>) {
         prefs.edit()
-            .putStringSet("packages", (config["packages"] as List<*>).map { it.toString() }.toSet())
             .putString("filters", JSONArray((config["filters"] as List<*>).map { JSONObject(it as Map<*, *>) }).toString())
             .apply()
     }
 
-    fun stats(): Map<String, Int> = mapOf(
-        "total" to prefs.getInt("total", 0),
-        "accepted" to prefs.getInt("accepted", 0),
-        "rejected" to prefs.getInt("rejected", 0),
-    )
-
-    fun count(accepted: Boolean) {
-        val key = if (accepted) "accepted" else "rejected"
-        prefs.edit()
-            .putInt("total", prefs.getInt("total", 0) + 1)
-            .putInt(key, prefs.getInt(key, 0) + 1)
-            .apply()
-    }
-
-    fun resetStats() {
-        prefs.edit().putInt("total", 0).putInt("accepted", 0).putInt("rejected", 0).apply()
-    }
-
     companion object {
-        val DEFAULT_PACKAGES = setOf("com.ubercab.driver", "com.didiglobal.driver")
+        const val DIDI_DRIVER = "com.didiglobal.driver"
+        const val UBER_DRIVER = "com.ubercab.driver"
     }
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Limited to the ride apps; the service never sees other apps' screens.
-     Screenshots are only taken for OCR while a ride app's offer card is shown. -->
+<!-- Limited to DiDi Conductor and Uber Driver; the service never sees other apps' screens.
+     Screenshots for OCR are only taken while analysis runs and one of them is in front. -->
 <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
     android:accessibilityEventTypes="typeWindowContentChanged|typeWindowStateChanged|typeWindowsChanged"
     android:accessibilityFeedbackType="feedbackGeneric"
@@ -9,4 +9,4 @@
     android:canTakeScreenshot="true"
     android:description="@string/trip_reader_description"
     android:notificationTimeout="100"
-    android:packageNames="com.ubercab.driver,com.didiglobal.driver,sinet.startup.inDriver,ee.mtakso.driver" />
+    android:packageNames="com.didiglobal.driver,com.ubercab.driver" />

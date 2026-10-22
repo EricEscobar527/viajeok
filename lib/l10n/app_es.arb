@@ -1,10 +1,6 @@
 {
   "@@locale": "es",
-  "btnSetupNow": "Configurar ahora",
-  "btnNext": "Siguiente",
-  "btnOpenSettings": "Abrir configuración",
-  "btnStartEarning": "¡Empezar a ganar!",
-  "welcomeTitle": "¡Bienvenido a\n{appName}!",
+  "welcomeTitle": "Bienvenido a\n{appName}",
   "@welcomeTitle": {
     "placeholders": {
       "appName": {
@@ -12,44 +8,23 @@
       }
     }
   },
-  "welcomeText": "Vamos a configurarlo en 1 minuto\npara que funcione perfecto mientras manejas.",
-  "featureTripAnalysis": "Análisis de cada viaje",
-  "featureInYourApps": "En tus apps de transporte favoritas",
-  "featurePopupOverApp": "Popup sobre tu app de transporte",
-  "featureWithoutLeaving": "Sin salir de tu app de trabajo",
-  "featureGreenRed": "Verde o rojo al instante",
-  "featureByFilters": "Según tus filtros de ganancia",
-  "overlayTitle": "Superposición sobre apps",
-  "overlayText": "Permite mostrar el popup de ganancias encima de tus apps de transporte mientras conduces, sin tener que cambiar de app.",
-  "overlayGranted": "Permiso concedido — el popup podrá aparecer.",
-  "overlayRequired": "Este permiso es obligatorio. Sin él, el popup no puede aparecer.",
-  "overlayPreviewTitle": "Así se verá mientras manejas:",
-  "overlayPreviewText": "← Se pone verde si el viaje conviene y rojo si no, según tus filtros.",
-  "doneTitle": "¡Todo listo!",
-  "doneText": "{appName} está configurado.\nPresiona ► Reproducir y empieza a analizar tus viajes.",
-  "@doneText": {
-    "placeholders": {
-      "appName": {
-        "type": "String"
-      }
-    }
-  },
-  "featureAutoAnalysis": "Análisis automático de viajes",
-  "featurePopupOverApps": "Popup encima de tus apps",
-  "featureWhileDriving": "Funciona mientras manejas",
-  "tabHome": "Inicio",
-  "tabConfig": "Config",
-  "tabSupport": "Soporte",
-  "supportText": "Ayuda y contacto. Próximamente.",
-  "panelReady": "Listo para iniciar",
-  "panelRunning": "Analizando viajes…",
-  "panelTapToStart": "Toca para iniciar el análisis",
-  "panelTapToStop": "Toca para detener el análisis",
-  "statTotal": "Total",
-  "statAccept": "Aceptar",
-  "statReject": "Rechazar",
-  "filtersTitle": "Filtros inteligentes",
-  "filtersActive": "{count, plural, =1{1 activo} other{{count} activos}}",
+  "welcomeText": "Te decimos al instante si una oferta de DiDi o Uber te conviene.",
+  "featureReadTitle": "Lee cada oferta de DiDi y Uber",
+  "featureReadText": "Precio, distancia y tiempo, sin que hagas nada",
+  "featureVerdictTitle": "Verde o rojo al instante",
+  "featureVerdictText": "Según los mínimos que tú defines",
+  "featureOverlayTitle": "Sin salir de tu app",
+  "featureOverlayText": "Un aviso pequeño encima de la oferta",
+  "btnStart": "Empezar",
+  "supportTitle": "Soporte",
+  "btnStartAnalysis": "Iniciar análisis",
+  "btnStopAnalysis": "Detener análisis",
+  "panelHintIdle": "Después abre DiDi o Uber; te avisamos en cada oferta.",
+  "panelRunning": "Analizando ofertas",
+  "panelHintRunning": "Abre DiDi o Uber y espera tus ofertas.",
+  "filtersTitle": "Mis mínimos",
+  "filtersSubtitle": "La oferta sale en verde si cumple todos los que actives.",
+  "filtersActive": "{count, plural, =0{Ninguno activo} =1{1 activo} other{{count} activos}}",
   "@filtersActive": {
     "placeholders": {
       "count": {
@@ -71,21 +46,45 @@
       }
     }
   },
-  "filterOff": "Desactivado",
-  "configAppsTitle": "Aplicaciones monitoreadas",
-  "configAppsSubtitle": "Toca para activar o desactivar el cálculo",
-  "dialogCancel": "Cancelar",
+  "filterOff": "Apagado",
+  "dialogCancel": "Ahora no",
+  "btnOpenSettings": "Abrir ajustes",
   "dialogEnableServiceTitle": "Activa la Lectura de pantalla",
-  "dialogEnableServiceText": "En Ajustes → Accesibilidad, busca \"Análisis Viaje – Lectura de viajes\" y actívalo. Después regresa y presiona ▶.\n\nSi aparece como restringido: Ajustes → Apps → Análisis Viaje → ⋮ → Permitir ajustes restringidos.",
-  "readingTitle": "Lectura de pantalla",
-  "readingText": "{appName} lee el precio y los km de cada oferta en DiDi y Uber para decirte si conviene. Se activa una sola vez y sigue funcionando aunque bloquees el teléfono.",
-  "readingEnabled": "Lectura de pantalla activada — todo listo.",
-  "readingRequired": "Este permiso es obligatorio. Sin él, la app no puede leer las ofertas.",
-  "@readingText": {
+  "dialogEnableServiceText": "Es lo que permite leer las ofertas de DiDi y Uber. Solo se activa una vez.\n\nEn Ajustes → Accesibilidad, busca \"Análisis Viaje – Lectura de viajes\" y actívalo. Después regresa y presiona Iniciar.\n\nSi aparece como restringido: Ajustes → Apps → Análisis Viaje → ⋮ → Permitir ajustes restringidos.",
+  "supportIssueLabel": "¿Qué problema tienes?",
+  "supportIssueWrongCalculation": "Los cálculos se muestran incorrectos",
+  "supportIssueAlertNotShown": "No sale la alerta en DiDi o Uber aunque Análisis Viaje está encendido",
+  "supportIssueOther": "Otro problema",
+  "supportIssueRequired": "Selecciona qué problema tienes",
+  "supportPhoneModel": "Modelo del celular",
+  "supportPhoneModelHint": "Ej. Samsung Galaxy A54",
+  "supportScreenshots": "Capturas de pantalla",
+  "supportAddScreenshot": "Agregar",
+  "supportRemoveScreenshot": "Quitar captura",
+  "supportScreenshotsHint": "Hasta {max} imágenes. Ayudan a encontrar el problema más rápido.",
+  "@supportScreenshotsHint": {
     "placeholders": {
-      "appName": {
-        "type": "String"
+      "max": {
+        "type": "int"
       }
     }
-  }
+  },
+  "supportEmail": "Correo electrónico",
+  "supportEmailHint": "tucorreo@ejemplo.com",
+  "supportEmailInvalid": "Escribe un correo válido",
+  "supportDescription": "¿Qué problema tuviste?",
+  "supportDescriptionHint": "Cuéntanos qué pasó",
+  "supportFieldRequired": "Este campo es obligatorio",
+  "supportSend": "Enviar",
+  "supportSending": "Enviando…",
+  "supportSendError": "No se pudo enviar. Revisa tu conexión e inténtalo de nuevo.",
+  "supportSentTitle": "Estamos revisando la información",
+  "supportSentText": "El tiempo promedio de respuesta es de 12 horas.",
+  "supportSentOk": "Entendido",
+  "serviceOnTitle": "Lectura de pantalla activa",
+  "serviceOnText": "Si una app de banco no te deja entrar, desactívala aquí.",
+  "btnDisableService": "Desactivar",
+  "dialogDisableServiceTitle": "¿Desactivar la Lectura de pantalla?",
+  "dialogDisableServiceText": "Algunas apps de banco (como Nu) no abren mientras está activa. Al desactivarla también se detiene el análisis.\n\nPara volver a usarlo, presiona Iniciar análisis y actívala otra vez en Ajustes.",
+  "serviceDisabledNotice": "Lectura de pantalla desactivada. Ya puedes abrir tu app de banco."
 }

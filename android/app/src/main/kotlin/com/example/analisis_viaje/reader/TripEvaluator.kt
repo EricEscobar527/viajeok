@@ -21,7 +21,14 @@ data class TripFilter(val kind: FilterKind, val enabled: Boolean, val value: Dou
 }
 
 object TripEvaluator {
-    /** Enabled filters the trip fails. Empty means accept (green). */
+    /**
+     * Enabled filters the trip fails. Empty means accept (green). Pickup
+     * distance can't be judged on offers that only give a total (Uber
+     * deliveries), so that filter is skipped there.
+     */
     fun failed(trip: TripOffer, filters: List<TripFilter>): List<FilterKind> =
-        filters.filter { it.enabled && !it.passes(trip) }.map { it.kind }
+        filters
+            .filter { it.enabled && (trip.hasPickup || it.kind != FilterKind.maxPickupKm) }
+            .filter { !it.passes(trip) }
+            .map { it.kind }
 }
