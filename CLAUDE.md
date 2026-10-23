@@ -29,6 +29,11 @@ flutter build apk --release --dart-define-from-file=env/prod.json # final build 
 # Play App Signing). Without key.properties, release falls back to the debug key: never
 # upload that. Never read, print or commit key.properties or the keystore.
 
+# Release builds are shrunk by R8 with android/app/proguard-rules.pro. ML Kit needs its keep
+# rules: without them, release crashed on enabling the accessibility service (NPE in
+# TextRecognition.getClient). Debug builds aren't shrunk, so always check a *release*
+# build on a phone before uploading. Bump `version:` in pubspec.yaml for every upload.
+
 # Kotlin unit tests (parser/evaluator); Gradle needs JDK 17, e.g. Android Studio's:
 cd android && JAVA_HOME="C:\Program Files\Android\Android Studio\jbr" ./gradlew.bat :app:testDebugUnitTest
 

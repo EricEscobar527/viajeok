@@ -7,8 +7,10 @@ import android.os.Build
 import android.util.Log
 import android.view.Display
 import androidx.annotation.RequiresApi
+import com.google.mlkit.common.sdkinternal.MlKitContext
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
+import com.google.mlkit.vision.text.TextRecognizer
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 
 /**
@@ -18,11 +20,17 @@ import com.google.mlkit.vision.text.latin.TextRecognizerOptions
  * on-device ML Kit OCR, so nothing leaves the phone.
  */
 class ScreenOcr(private val service: AccessibilityService, private val debug: Boolean) {
-    private val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+    // If ML Kit can't start (it once crashed here in release builds when R8
+    // stripped its internals), OCR is just unavailable: the service keeps
+    // running instead of taking the whole app down with it.
+    private val recognizer: TextRecognizer? = runCatching {
+        MlKitContext.initializeIfNeeded(service.applicationContext)
+        TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+    }.onFailure { Log.e(TAG, "OCR unavailable", it) }.getOrNull()
     private var busy = false
     private var lastShotAt = 0L
 
-    val isSupported get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+    val isSupported get() = recognizer != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
 
     /**
      * Calls [onLines] with the recognized lines, top to bottom, or with an
@@ -54,6 +62,7 @@ class ScreenOcr(private val service: AccessibilityService, private val debug: Bo
 
     /** OCR of an already captured image; lines overlapping [skip] are dropped. */
     fun recognize(bitmap: Bitmap, skip: Rect? = null, onLines: (List<String>) -> Unit) {
+        val recognizer = recognizer ?: return onLines(emptyList())
         recognizer.process(InputImage.fromBitmap(bitmap, 0))
             .addOnSuccessListener { result ->
                 onLines(
@@ -122,7 +131,9 @@ class ScreenOcr(private val service: AccessibilityService, private val debug: Bo
         }
     }
 
-    fun close() = recognizer.close()
+    fun close() {
+        recognizer?.close()
+    }
 
     private companion object {
         const val TAG = "ViajeOK"
