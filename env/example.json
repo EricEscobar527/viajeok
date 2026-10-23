@@ -1,4 +1,4 @@
 {
-  "SUPPORT_API_BASE_URL": "http://<IP-de-tu-PC>:8010/api",
+  "SUPPORT_API_BASE_URL": "https://admin.doublee.cloud/api",
   "SUPPORT_API_TOKEN": "<token de Panel → Aplicaciones>"
 }

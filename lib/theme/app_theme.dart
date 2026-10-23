@@ -10,7 +10,6 @@ abstract final class AppColors {
   static const border = Color(0xFF434A53);
 
   static const accent = Color(0xFFFFFFFF);
-  static const accentSoft = Color(0x1AFFFFFF); // 10% white for tinted fills
 
   static const green = Color(0xFF34D399);
   static const red = Color(0xFFF87171);
