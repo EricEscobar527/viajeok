@@ -27,9 +27,6 @@
   "filterMaxPickupValue": "{value} km max",
   "filterOff": "Off",
   "dialogCancel": "Not now",
-  "btnOpenSettings": "Open settings",
-  "dialogEnableServiceTitle": "Turn on Screen reading",
-  "dialogEnableServiceText": "This is what lets the app read DiDi and Uber offers. You only turn it on once.\n\nIn Settings → Accessibility, find \"ViajeOK – Lectura de viajes\" and turn it on. Then come back and press Start.\n\nIf it shows as restricted: Settings → Apps → ViajeOK → ⋮ → Allow restricted settings.",
   "supportIssueLabel": "What's the problem?",
   "supportIssueWrongCalculation": "The calculations are wrong",
   "supportIssueAlertNotShown": "The alert doesn't show in DiDi or Uber even though ViajeOK is on",
@@ -62,5 +59,17 @@
   "supportSentFolio": "Your ticket number is {folio}.",
   "supportSendRateLimited": "You've sent too many reports. Try again later.",
   "supportSendInvalid": "Couldn't send it: check the details and images.",
-  "supportImageFormat": "Some images weren't added: use JPG or PNG screenshots."
+  "supportImageFormat": "Some images weren't added: use JPG or PNG screenshots.",
+  "disclosureTitle": "Before you turn it on",
+  "disclosureIntro": "[PENDIENTE]",
+  "disclosureDataTitle": "[PENDIENTE]",
+  "disclosureDataText": "[PENDIENTE]",
+  "disclosureUseTitle": "[PENDIENTE]",
+  "disclosureUseText": "[PENDIENTE]",
+  "disclosureStorageTitle": "[PENDIENTE]",
+  "disclosureStorageText": "[PENDIENTE]",
+  "disclosureControlTitle": "[PENDIENTE]",
+  "disclosureControlText": "[PENDIENTE]",
+  "disclosureAccept": "I agree",
+  "disclosureDecline": "I don't agree"
 }

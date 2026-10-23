@@ -260,24 +260,6 @@ abstract class AppLocalizations {
   /// **'Ahora no'**
   String get dialogCancel;
 
-  /// No description provided for @btnOpenSettings.
-  ///
-  /// In es, this message translates to:
-  /// **'Abrir ajustes'**
-  String get btnOpenSettings;
-
-  /// No description provided for @dialogEnableServiceTitle.
-  ///
-  /// In es, this message translates to:
-  /// **'Activa la Lectura de pantalla'**
-  String get dialogEnableServiceTitle;
-
-  /// No description provided for @dialogEnableServiceText.
-  ///
-  /// In es, this message translates to:
-  /// **'Es lo que permite leer las ofertas de DiDi y Uber. Solo se activa una vez.\n\nEn Ajustes → Accesibilidad, busca \"ViajeOK – Lectura de viajes\" y actívalo. Después regresa y presiona Iniciar.\n\nSi aparece como restringido: Ajustes → Apps → ViajeOK → ⋮ → Permitir ajustes restringidos.'**
-  String get dialogEnableServiceText;
-
   /// No description provided for @supportIssueLabel.
   ///
   /// In es, this message translates to:
@@ -475,6 +457,78 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Algunas imágenes no se agregaron: usa capturas JPG o PNG.'**
   String get supportImageFormat;
+
+  /// No description provided for @disclosureTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Antes de activar'**
+  String get disclosureTitle;
+
+  /// No description provided for @disclosureIntro.
+  ///
+  /// In es, this message translates to:
+  /// **'ViajeOK usa el Servicio de Accesibilidad de Android para leer la información de las ofertas de viaje que aparecen en tu pantalla en Uber y DiDi.'**
+  String get disclosureIntro;
+
+  /// No description provided for @disclosureDataTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Qué datos lee'**
+  String get disclosureDataTitle;
+
+  /// No description provided for @disclosureDataText.
+  ///
+  /// In es, this message translates to:
+  /// **'Mientras el análisis está activo y Uber o DiDi están en pantalla, ViajeOK captura y procesa en tu teléfono la pantalla de esas apps para extraer los datos de la oferta de viaje: tarifa, distancia, tiempo estimado y zona de origen y destino. Todo lo demás que aparezca en la pantalla se descarta. No captura otras apps.'**
+  String get disclosureDataText;
+
+  /// No description provided for @disclosureUseTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Para qué los usa'**
+  String get disclosureUseTitle;
+
+  /// No description provided for @disclosureUseText.
+  ///
+  /// In es, this message translates to:
+  /// **'Para calcular al instante cuánto ganarías por kilómetro y mostrarte si el viaje te conviene según tus criterios. ViajeOK no acepta, rechaza ni toca nada en Uber o DiDi; la decisión siempre es tuya.'**
+  String get disclosureUseText;
+
+  /// No description provided for @disclosureStorageTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Si se guardan o comparten'**
+  String get disclosureStorageTitle;
+
+  /// No description provided for @disclosureStorageText.
+  ///
+  /// In es, this message translates to:
+  /// **'La información se procesa en tu teléfono. No se envía a nuestros servidores ni se comparte con terceros. Solo se guarda en tu dispositivo un historial de viajes evaluados, que puedes borrar cuando quieras.'**
+  String get disclosureStorageText;
+
+  /// No description provided for @disclosureControlTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Cómo desactivarlo'**
+  String get disclosureControlTitle;
+
+  /// No description provided for @disclosureControlText.
+  ///
+  /// In es, this message translates to:
+  /// **'Puedes desactivar el permiso en cualquier momento en Ajustes > Accesibilidad > ViajeOK. Si lo desactivas, la app deja de evaluar viajes.'**
+  String get disclosureControlText;
+
+  /// No description provided for @disclosureAccept.
+  ///
+  /// In es, this message translates to:
+  /// **'Acepto'**
+  String get disclosureAccept;
+
+  /// No description provided for @disclosureDecline.
+  ///
+  /// In es, this message translates to:
+  /// **'No acepto'**
+  String get disclosureDecline;
 }
 
 class _AppLocalizationsDelegate

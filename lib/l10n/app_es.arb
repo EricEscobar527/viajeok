@@ -48,9 +48,6 @@
   },
   "filterOff": "Apagado",
   "dialogCancel": "Ahora no",
-  "btnOpenSettings": "Abrir ajustes",
-  "dialogEnableServiceTitle": "Activa la Lectura de pantalla",
-  "dialogEnableServiceText": "Es lo que permite leer las ofertas de DiDi y Uber. Solo se activa una vez.\n\nEn Ajustes → Accesibilidad, busca \"ViajeOK – Lectura de viajes\" y actívalo. Después regresa y presiona Iniciar.\n\nSi aparece como restringido: Ajustes → Apps → ViajeOK → ⋮ → Permitir ajustes restringidos.",
   "supportIssueLabel": "¿Qué problema tienes?",
   "supportIssueWrongCalculation": "Los cálculos se muestran incorrectos",
   "supportIssueAlertNotShown": "No sale la alerta en DiDi o Uber aunque ViajeOK está encendido",
@@ -97,5 +94,17 @@
   },
   "supportSendRateLimited": "Enviaste demasiados reportes. Intenta de nuevo más tarde.",
   "supportSendInvalid": "No se pudo enviar: revisa los datos y las imágenes.",
-  "supportImageFormat": "Algunas imágenes no se agregaron: usa capturas JPG o PNG."
+  "supportImageFormat": "Algunas imágenes no se agregaron: usa capturas JPG o PNG.",
+  "disclosureTitle": "Antes de activar",
+  "disclosureIntro": "ViajeOK usa el Servicio de Accesibilidad de Android para leer la información de las ofertas de viaje que aparecen en tu pantalla en Uber y DiDi.",
+  "disclosureDataTitle": "Qué datos lee",
+  "disclosureDataText": "Mientras el análisis está activo y Uber o DiDi están en pantalla, ViajeOK captura y procesa en tu teléfono la pantalla de esas apps para extraer los datos de la oferta de viaje: tarifa, distancia, tiempo estimado y zona de origen y destino. Todo lo demás que aparezca en la pantalla se descarta. No captura otras apps.",
+  "disclosureUseTitle": "Para qué los usa",
+  "disclosureUseText": "Para calcular al instante cuánto ganarías por kilómetro y mostrarte si el viaje te conviene según tus criterios. ViajeOK no acepta, rechaza ni toca nada en Uber o DiDi; la decisión siempre es tuya.",
+  "disclosureStorageTitle": "Si se guardan o comparten",
+  "disclosureStorageText": "La información se procesa en tu teléfono. No se envía a nuestros servidores ni se comparte con terceros. Solo se guarda en tu dispositivo un historial de viajes evaluados, que puedes borrar cuando quieras.",
+  "disclosureControlTitle": "Cómo desactivarlo",
+  "disclosureControlText": "Puedes desactivar el permiso en cualquier momento en Ajustes > Accesibilidad > ViajeOK. Si lo desactivas, la app deja de evaluar viajes.",
+  "disclosureAccept": "Acepto",
+  "disclosureDecline": "No acepto"
 }

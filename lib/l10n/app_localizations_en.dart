@@ -110,16 +110,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dialogCancel => 'Not now';
 
   @override
-  String get btnOpenSettings => 'Open settings';
-
-  @override
-  String get dialogEnableServiceTitle => 'Turn on Screen reading';
-
-  @override
-  String get dialogEnableServiceText =>
-      'This is what lets the app read DiDi and Uber offers. You only turn it on once.\n\nIn Settings → Accessibility, find \"ViajeOK – Lectura de viajes\" and turn it on. Then come back and press Start.\n\nIf it shows as restricted: Settings → Apps → ViajeOK → ⋮ → Allow restricted settings.';
-
-  @override
   String get supportIssueLabel => 'What\'s the problem?';
 
   @override
@@ -229,4 +219,40 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get supportImageFormat =>
       'Some images weren\'t added: use JPG or PNG screenshots.';
+
+  @override
+  String get disclosureTitle => 'Before you turn it on';
+
+  @override
+  String get disclosureIntro => '[PENDIENTE]';
+
+  @override
+  String get disclosureDataTitle => '[PENDIENTE]';
+
+  @override
+  String get disclosureDataText => '[PENDIENTE]';
+
+  @override
+  String get disclosureUseTitle => '[PENDIENTE]';
+
+  @override
+  String get disclosureUseText => '[PENDIENTE]';
+
+  @override
+  String get disclosureStorageTitle => '[PENDIENTE]';
+
+  @override
+  String get disclosureStorageText => '[PENDIENTE]';
+
+  @override
+  String get disclosureControlTitle => '[PENDIENTE]';
+
+  @override
+  String get disclosureControlText => '[PENDIENTE]';
+
+  @override
+  String get disclosureAccept => 'I agree';
+
+  @override
+  String get disclosureDecline => 'I don\'t agree';
 }

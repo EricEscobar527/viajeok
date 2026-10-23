@@ -62,4 +62,30 @@ void main() {
 
     expect(find.text('Empezar'), findsOneWidget);
   });
+
+  testWidgets('starting without the service shows the disclosure first', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MyApp(prefs: await _prefs({'onboarding_done': true})),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Iniciar análisis'));
+    await tester.pumpAndSettle();
+    expect(find.text('Antes de activar'), findsOneWidget);
+    expect(find.text('Acepto'), findsOneWidget);
+
+    // Declining goes back without opening Android's settings.
+    await tester.tap(find.text('No acepto'));
+    await tester.pumpAndSettle();
+    expect(find.text('Antes de activar'), findsNothing);
+    expect(find.text('Iniciar análisis'), findsOneWidget);
+
+    await tester.tap(find.text('Iniciar análisis'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Acepto'));
+    await tester.pumpAndSettle();
+    expect(find.text('Antes de activar'), findsNothing);
+  });
 }

@@ -111,16 +111,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get dialogCancel => 'Ahora no';
 
   @override
-  String get btnOpenSettings => 'Abrir ajustes';
-
-  @override
-  String get dialogEnableServiceTitle => 'Activa la Lectura de pantalla';
-
-  @override
-  String get dialogEnableServiceText =>
-      'Es lo que permite leer las ofertas de DiDi y Uber. Solo se activa una vez.\n\nEn Ajustes → Accesibilidad, busca \"ViajeOK – Lectura de viajes\" y actívalo. Después regresa y presiona Iniciar.\n\nSi aparece como restringido: Ajustes → Apps → ViajeOK → ⋮ → Permitir ajustes restringidos.';
-
-  @override
   String get supportIssueLabel => '¿Qué problema tienes?';
 
   @override
@@ -232,4 +222,45 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get supportImageFormat =>
       'Algunas imágenes no se agregaron: usa capturas JPG o PNG.';
+
+  @override
+  String get disclosureTitle => 'Antes de activar';
+
+  @override
+  String get disclosureIntro =>
+      'ViajeOK usa el Servicio de Accesibilidad de Android para leer la información de las ofertas de viaje que aparecen en tu pantalla en Uber y DiDi.';
+
+  @override
+  String get disclosureDataTitle => 'Qué datos lee';
+
+  @override
+  String get disclosureDataText =>
+      'Mientras el análisis está activo y Uber o DiDi están en pantalla, ViajeOK captura y procesa en tu teléfono la pantalla de esas apps para extraer los datos de la oferta de viaje: tarifa, distancia, tiempo estimado y zona de origen y destino. Todo lo demás que aparezca en la pantalla se descarta. No captura otras apps.';
+
+  @override
+  String get disclosureUseTitle => 'Para qué los usa';
+
+  @override
+  String get disclosureUseText =>
+      'Para calcular al instante cuánto ganarías por kilómetro y mostrarte si el viaje te conviene según tus criterios. ViajeOK no acepta, rechaza ni toca nada en Uber o DiDi; la decisión siempre es tuya.';
+
+  @override
+  String get disclosureStorageTitle => 'Si se guardan o comparten';
+
+  @override
+  String get disclosureStorageText =>
+      'La información se procesa en tu teléfono. No se envía a nuestros servidores ni se comparte con terceros. Solo se guarda en tu dispositivo un historial de viajes evaluados, que puedes borrar cuando quieras.';
+
+  @override
+  String get disclosureControlTitle => 'Cómo desactivarlo';
+
+  @override
+  String get disclosureControlText =>
+      'Puedes desactivar el permiso en cualquier momento en Ajustes > Accesibilidad > ViajeOK. Si lo desactivas, la app deja de evaluar viajes.';
+
+  @override
+  String get disclosureAccept => 'Acepto';
+
+  @override
+  String get disclosureDecline => 'No acepto';
 }

@@ -8,7 +8,6 @@ import 'home/home_shell.dart';
 import 'l10n/app_localizations.dart';
 import 'onboarding/onboarding_screen.dart';
 import 'platform/trip_reader.dart';
-import 'splash_screen.dart';
 import 'theme/app_theme.dart';
 
 Future<void> main() async {
@@ -34,22 +33,22 @@ class MyApp extends StatelessWidget {
       locale: const Locale('es'),
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
-      home: SplashScreen(next: _AfterSplash(prefs: prefs)),
+      home: _Start(prefs: prefs),
     );
   }
 }
 
 /// Onboarding on first launch, the home panel every time after that.
-class _AfterSplash extends StatefulWidget {
-  const _AfterSplash({required this.prefs});
+class _Start extends StatefulWidget {
+  const _Start({required this.prefs});
 
   final AppPrefs prefs;
 
   @override
-  State<_AfterSplash> createState() => _AfterSplashState();
+  State<_Start> createState() => _StartState();
 }
 
-class _AfterSplashState extends State<_AfterSplash> {
+class _StartState extends State<_Start> {
   late bool _onboarded = widget.prefs.onboardingDone;
 
   @override

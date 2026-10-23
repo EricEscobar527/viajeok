@@ -44,8 +44,7 @@ Future<void> _choose(WidgetTester tester, String option) async {
 }
 
 const _calc = 'Los cálculos se muestran incorrectos';
-const _alert =
-    'No sale la alerta en DiDi o Uber aunque ViajeOK está encendido';
+const _alert = 'No sale la alerta en DiDi o Uber aunque ViajeOK está encendido';
 const _other = 'Otro problema';
 
 void main() {

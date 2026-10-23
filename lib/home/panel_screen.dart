@@ -6,6 +6,7 @@ import '../l10n/app_localizations.dart';
 import '../platform/trip_reader.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common.dart';
+import 'accessibility_disclosure_screen.dart';
 
 /// Home: start/stop the analysis and the minimums (filters) that decide
 /// green vs red.
@@ -57,9 +58,13 @@ class _PanelScreenState extends State<PanelScreen> with WidgetsBindingObserver {
       await TripReader.setRunning(false);
       return _refresh();
     }
-    // First start: this is where the one permission the app needs is asked.
+    // First start: the one permission the app needs is asked here, always
+    // after the disclosure Google Play requires.
     if (!await TripReader.isServiceEnabled()) {
-      if (await _askToEnableService()) await TripReader.openServiceSettings();
+      if (!mounted) return;
+      if (await AccessibilityDisclosureScreen.show(context)) {
+        await TripReader.openServiceSettings();
+      }
       return;
     }
     await TripReader.pushConfig(widget.prefs);
@@ -96,29 +101,6 @@ class _PanelScreenState extends State<PanelScreen> with WidgetsBindingObserver {
     if (turnedOff) {
       messenger.showSnackBar(SnackBar(content: Text(t.serviceDisabledNotice)));
     }
-  }
-
-  Future<bool> _askToEnableService() async {
-    final t = AppLocalizations.of(context);
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        icon: const Icon(Icons.document_scanner_outlined),
-        title: Text(t.dialogEnableServiceTitle),
-        content: Text(t.dialogEnableServiceText),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(t.dialogCancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(t.btnOpenSettings),
-          ),
-        ],
-      ),
-    );
-    return ok ?? false;
   }
 
   @override

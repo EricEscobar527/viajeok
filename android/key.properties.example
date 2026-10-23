@@ -1,0 +1,6 @@
+# Copy to android/key.properties (git-ignored) and fill in the passwords
+# you chose when creating the keystore. Use forward slashes in the path.
+storeFile=C:/Users/eescobar/keys/viajeok-upload.jks
+storePassword=<contraseña del keystore>
+keyAlias=upload
+keyPassword=<contraseña de la llave>

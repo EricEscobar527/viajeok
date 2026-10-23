@@ -16,8 +16,10 @@ abstract final class TripReader {
     return await _channel.invokeMethod<bool>('isServiceEnabled') ?? false;
   }
 
-  static Future<void> openServiceSettings() =>
-      _channel.invokeMethod<void>('openServiceSettings');
+  static Future<void> openServiceSettings() async {
+    if (!Platform.isAndroid) return;
+    await _channel.invokeMethod<void>('openServiceSettings');
+  }
 
   /// Turns the accessibility service off (and stops the analysis), e.g. so
   /// a banking app that blocks accessibility services will open. Returns
