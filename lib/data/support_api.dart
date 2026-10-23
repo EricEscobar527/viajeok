@@ -120,14 +120,15 @@ class SupportApiException implements Exception {
 abstract interface class SupportApi {
   Future<SupportReceipt> submit(SupportTicket ticket);
 
-  /// The real backend when [SupportApiConfig.baseUrl] is configured,
-  /// otherwise a stand-in that accepts every report.
+  /// The real backend when [SupportApiConfig.baseUrl] is configured;
+  /// otherwise every send fails, so a build made without the config
+  /// can't pretend reports went through.
   factory SupportApi.create() => SupportApiConfig.isConfigured
       ? HttpSupportApi(
           Uri.parse(SupportApiConfig.baseUrl),
           token: SupportApiConfig.token,
         )
-      : const PendingSupportApi();
+      : const UnconfiguredSupportApi();
 }
 
 /// Backend settings, injected at build time so the token and URL stay out
@@ -153,22 +154,23 @@ abstract final class SupportApiConfig {
   static const timeout = Duration(seconds: 30);
 }
 
-/// Placeholder when no backend is configured: pretends the report was sent
-/// so the whole flow still works.
-class PendingSupportApi implements SupportApi {
-  const PendingSupportApi();
+/// Used when the app was built without `--dart-define-from-file`: reports
+/// can't go anywhere, so sending fails (and says why in debug logs).
+class UnconfiguredSupportApi implements SupportApi {
+  const UnconfiguredSupportApi();
 
   @override
   Future<SupportReceipt> submit(SupportTicket ticket) async {
-    // Lets the payload be checked in `flutter logs` without a backend.
     if (kDebugMode) {
       debugPrint(
-        'Support ticket (no backend configured, not sent): '
-        '${ticket.toFormFields()} + ${ticket.screenshotPaths.length} image(s)',
+        'Support ticket NOT sent: no SUPPORT_API_BASE_URL. Build or run with '
+        '--dart-define-from-file=env/dev.json. Payload: ${ticket.toFormFields()}',
       );
     }
-    await Future<void>.delayed(const Duration(milliseconds: 600));
-    return const SupportReceipt();
+    throw const SupportApiException(
+      SupportFailure.unavailable,
+      'Support API not configured',
+    );
   }
 }
 

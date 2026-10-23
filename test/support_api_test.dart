@@ -60,4 +60,13 @@ void main() {
       '2026-10-22T19:05:09+00:00',
     );
   });
+
+  test('a build without the API config never pretends a report was sent', () {
+    expect(
+      () => const UnconfiguredSupportApi().submit(
+        SupportTicket(issue: SupportIssue.other, sentAt: DateTime(2026)),
+      ),
+      throwsA(isA<SupportApiException>()),
+    );
+  });
 }
