@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:analisis_viaje/data/support_api.dart';
-import 'package:analisis_viaje/platform/device_info.dart';
+import 'package:viajeok/data/support_api.dart';
+import 'package:viajeok/platform/device_info.dart';
 
 void main() {
   const device = DeviceInfo(

@@ -275,7 +275,7 @@ abstract class AppLocalizations {
   /// No description provided for @dialogEnableServiceText.
   ///
   /// In es, this message translates to:
-  /// **'Es lo que permite leer las ofertas de DiDi y Uber. Solo se activa una vez.\n\nEn Ajustes → Accesibilidad, busca \"Análisis Viaje – Lectura de viajes\" y actívalo. Después regresa y presiona Iniciar.\n\nSi aparece como restringido: Ajustes → Apps → Análisis Viaje → ⋮ → Permitir ajustes restringidos.'**
+  /// **'Es lo que permite leer las ofertas de DiDi y Uber. Solo se activa una vez.\n\nEn Ajustes → Accesibilidad, busca \"ViajeOK – Lectura de viajes\" y actívalo. Después regresa y presiona Iniciar.\n\nSi aparece como restringido: Ajustes → Apps → ViajeOK → ⋮ → Permitir ajustes restringidos.'**
   String get dialogEnableServiceText;
 
   /// No description provided for @supportIssueLabel.
@@ -293,7 +293,7 @@ abstract class AppLocalizations {
   /// No description provided for @supportIssueAlertNotShown.
   ///
   /// In es, this message translates to:
-  /// **'No sale la alerta en DiDi o Uber aunque Análisis Viaje está encendido'**
+  /// **'No sale la alerta en DiDi o Uber aunque ViajeOK está encendido'**
   String get supportIssueAlertNotShown;
 
   /// No description provided for @supportIssueOther.

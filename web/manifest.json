@@ -1,6 +1,6 @@
 {
-    "name": "analisis_viaje",
-    "short_name": "analisis_viaje",
+    "name": "ViajeOK",
+    "short_name": "ViajeOK",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

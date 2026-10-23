@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 
-import 'package:analisis_viaje/data/support_api.dart';
+import 'package:viajeok/data/support_api.dart';
 
 /// [HttpSupportApi] against a fake server that answers like the real
 /// backend (`POST /api/support/tickets`).

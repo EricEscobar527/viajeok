@@ -1,4 +1,4 @@
-package com.example.analisis_viaje.reader
+package cloud.doublee.viajeok.reader
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse

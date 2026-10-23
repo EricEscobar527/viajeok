@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 
 /// App and phone details attached to support reports, read from Android
-/// (`deviceInfo` on the `analisis_viaje/reader` channel in MainActivity.kt).
+/// (`deviceInfo` on the `viajeok/reader` channel in MainActivity.kt).
 class DeviceInfo {
   const DeviceInfo({
     required this.appVersion,
@@ -28,7 +28,7 @@ class DeviceInfo {
   final String brand;
   final String model;
 
-  static const _channel = MethodChannel('analisis_viaje/reader');
+  static const _channel = MethodChannel('viajeok/reader');
 
   /// Null off Android or if the details can't be read; reports are sent
   /// anyway, just without them.

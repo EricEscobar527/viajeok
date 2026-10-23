@@ -1,4 +1,4 @@
-package com.example.analisis_viaje.reader
+package cloud.doublee.viajeok.reader
 
 /**
  * A trip offer as read from the DiDi/Uber screen. Uber deliveries only give

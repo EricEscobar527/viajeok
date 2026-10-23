@@ -4,11 +4,11 @@ import 'package:flutter/services.dart';
 
 import '../data/app_prefs.dart';
 
-/// Bridge to TripReaderService.kt over the `analisis_viaje/reader` channel.
+/// Bridge to TripReaderService.kt over the `viajeok/reader` channel.
 /// Parsing, filtering and the popup all happen natively, so they keep
 /// working while this app is in the background.
 abstract final class TripReader {
-  static const _channel = MethodChannel('analisis_viaje/reader');
+  static const _channel = MethodChannel('viajeok/reader');
 
   /// Whether the user turned the accessibility service on in Android settings.
   static Future<bool> isServiceEnabled() async {

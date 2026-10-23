@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:analisis_viaje/data/support_api.dart';
-import 'package:analisis_viaje/l10n/app_localizations.dart';
-import 'package:analisis_viaje/support/support_screen.dart';
+import 'package:viajeok/data/support_api.dart';
+import 'package:viajeok/l10n/app_localizations.dart';
+import 'package:viajeok/support/support_screen.dart';
 
 class _FakeApi implements SupportApi {
   _FakeApi({this.failure});
@@ -45,7 +45,7 @@ Future<void> _choose(WidgetTester tester, String option) async {
 
 const _calc = 'Los cálculos se muestran incorrectos';
 const _alert =
-    'No sale la alerta en DiDi o Uber aunque Análisis Viaje está encendido';
+    'No sale la alerta en DiDi o Uber aunque ViajeOK está encendido';
 const _other = 'Otro problema';
 
 void main() {

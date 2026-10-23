@@ -1,4 +1,4 @@
-package com.example.analisis_viaje
+package cloud.doublee.viajeok
 
 import android.app.Activity
 import android.content.Intent
@@ -7,8 +7,8 @@ import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.widget.ImageView
-import com.example.analisis_viaje.reader.ReaderState
-import com.example.analisis_viaje.reader.TripReaderService
+import cloud.doublee.viajeok.reader.ReaderState
+import cloud.doublee.viajeok.reader.TripReaderService
 import java.io.File
 
 /**
@@ -17,8 +17,8 @@ import java.io.File
  * offer cards can be checked on a phone without a live offer:
  *
  *   adb push card.jpg /data/local/tmp/card.jpg
- *   adb shell run-as com.example.analisis_viaje cp /data/local/tmp/card.jpg files/card.jpg
- *   adb shell am start -n com.example.analisis_viaje/.DebugOfferActivity --es image card.jpg --es app didi
+ *   adb shell run-as cloud.doublee.viajeok cp /data/local/tmp/card.jpg files/card.jpg
+ *   adb shell am start -n cloud.doublee.viajeok/.DebugOfferActivity --es image card.jpg --es app didi
  *
  * `app` (didi | uber, default uber) picks where the popup is placed.
  * The result is logged under the AnalisisViaje tag. Needs the accessibility

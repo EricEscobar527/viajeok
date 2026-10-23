@@ -1,10 +1,10 @@
-package com.example.analisis_viaje
+package cloud.doublee.viajeok
 
 import android.content.Intent
 import android.os.Build
 import android.provider.Settings
-import com.example.analisis_viaje.reader.ReaderState
-import com.example.analisis_viaje.reader.TripReaderService
+import cloud.doublee.viajeok.reader.ReaderState
+import cloud.doublee.viajeok.reader.TripReaderService
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -16,7 +16,7 @@ class MainActivity : FlutterActivity() {
 
         // Bridge to TripReaderService (lib/platform/trip_reader.dart).
         val reader = ReaderState(this)
-        MethodChannel(messenger, "analisis_viaje/reader")
+        MethodChannel(messenger, "viajeok/reader")
             .setMethodCallHandler { call, result ->
                 when (call.method) {
                     "isServiceEnabled" -> result.success(TripReaderService.isEnabled(this))

@@ -118,7 +118,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get dialogEnableServiceText =>
-      'Es lo que permite leer las ofertas de DiDi y Uber. Solo se activa una vez.\n\nEn Ajustes → Accesibilidad, busca \"Análisis Viaje – Lectura de viajes\" y actívalo. Después regresa y presiona Iniciar.\n\nSi aparece como restringido: Ajustes → Apps → Análisis Viaje → ⋮ → Permitir ajustes restringidos.';
+      'Es lo que permite leer las ofertas de DiDi y Uber. Solo se activa una vez.\n\nEn Ajustes → Accesibilidad, busca \"ViajeOK – Lectura de viajes\" y actívalo. Después regresa y presiona Iniciar.\n\nSi aparece como restringido: Ajustes → Apps → ViajeOK → ⋮ → Permitir ajustes restringidos.';
 
   @override
   String get supportIssueLabel => '¿Qué problema tienes?';
@@ -129,7 +129,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get supportIssueAlertNotShown =>
-      'No sale la alerta en DiDi o Uber aunque Análisis Viaje está encendido';
+      'No sale la alerta en DiDi o Uber aunque ViajeOK está encendido';
 
   @override
   String get supportIssueOther => 'Otro problema';

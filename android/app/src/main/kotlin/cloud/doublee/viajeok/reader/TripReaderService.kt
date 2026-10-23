@@ -1,4 +1,4 @@
-package com.example.analisis_viaje.reader
+package cloud.doublee.viajeok.reader
 
 import android.accessibilityservice.AccessibilityService
 import android.content.ComponentName

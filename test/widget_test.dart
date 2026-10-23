@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:analisis_viaje/data/app_prefs.dart';
-import 'package:analisis_viaje/main.dart';
+import 'package:viajeok/data/app_prefs.dart';
+import 'package:viajeok/main.dart';
 
 Future<AppPrefs> _prefs(Map<String, Object> values) async {
   SharedPreferences.setMockInitialValues(values);

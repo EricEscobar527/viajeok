@@ -1,4 +1,4 @@
-package com.example.analisis_viaje.reader
+package cloud.doublee.viajeok.reader
 
 import android.accessibilityservice.AccessibilityService
 import android.graphics.Bitmap
@@ -110,7 +110,7 @@ class ScreenOcr(private val service: AccessibilityService, private val debug: Bo
             .takeIf { it.bottom > 0 && it.top < bitmap.height }
 
     // Debug builds keep the last few OCR inputs in cache/ocr/ to inspect with
-    // `adb shell run-as com.example.analisis_viaje ls cache/ocr`.
+    // `adb shell run-as cloud.doublee.viajeok ls cache/ocr`.
     private fun saveForDebug(bitmap: Bitmap) {
         runCatching {
             val dir = java.io.File(service.cacheDir, "ocr").apply { mkdirs() }

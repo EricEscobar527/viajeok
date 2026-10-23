@@ -1,4 +1,4 @@
-package com.example.analisis_viaje.reader
+package cloud.doublee.viajeok.reader
 
 /** Mirrors FilterKind in lib/data/trip_filters.dart (same names). */
 enum class FilterKind(val isMaximum: Boolean) {

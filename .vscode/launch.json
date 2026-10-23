@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "analisis_viaje (dev API)",
+      "name": "ViajeOK (dev API)",
       "request": "launch",
       "type": "dart",
       "toolArgs": ["--dart-define-from-file=env/dev.json"]
