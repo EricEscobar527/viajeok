@@ -225,7 +225,7 @@ class TripReaderService : AccessibilityService() {
     }
 
     companion object {
-        private const val TAG = "AnalisisViaje"
+        private const val TAG = "ViajeOK"
         private const val SCAN_DELAY_MS = 250L
         private const val HIDE_AFTER_GONE_MS = 2500L
         private const val MAX_DEPTH = 40

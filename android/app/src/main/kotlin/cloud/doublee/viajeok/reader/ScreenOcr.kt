@@ -125,7 +125,7 @@ class ScreenOcr(private val service: AccessibilityService, private val debug: Bo
     fun close() = recognizer.close()
 
     private companion object {
-        const val TAG = "AnalisisViaje"
+        const val TAG = "ViajeOK"
         const val MIN_INTERVAL_MS = 1000L
         const val CROP_TOP = 0.05
         const val SCALE = 2

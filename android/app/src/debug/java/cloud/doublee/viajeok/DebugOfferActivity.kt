@@ -21,7 +21,7 @@ import java.io.File
  *   adb shell am start -n cloud.doublee.viajeok/.DebugOfferActivity --es image card.jpg --es app didi
  *
  * `app` (didi | uber, default uber) picks where the popup is placed.
- * The result is logged under the AnalisisViaje tag. Needs the accessibility
+ * The result is logged under the ViajeOK tag. Needs the accessibility
  * service enabled (the popup is drawn by it).
  */
 class DebugOfferActivity : Activity() {
@@ -67,6 +67,6 @@ class DebugOfferActivity : Activity() {
     }
 
     private companion object {
-        const val TAG = "AnalisisViaje"
+        const val TAG = "ViajeOK"
     }
 }
