@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../billing/subscription_controller.dart';
+import '../billing/subscription_screen.dart';
 import '../data/app_prefs.dart';
 import '../data/trip_filters.dart';
 import '../l10n/app_localizations.dart';
@@ -11,9 +13,14 @@ import 'accessibility_disclosure_screen.dart';
 /// Home: start/stop the analysis and the minimums (filters) that decide
 /// green vs red.
 class PanelScreen extends StatefulWidget {
-  const PanelScreen({super.key, required this.prefs});
+  const PanelScreen({
+    super.key,
+    required this.prefs,
+    required this.subscriptions,
+  });
 
   final AppPrefs prefs;
+  final SubscriptionController subscriptions;
 
   @override
   State<PanelScreen> createState() => _PanelScreenState();
@@ -57,6 +64,12 @@ class _PanelScreenState extends State<PanelScreen> with WidgetsBindingObserver {
     if (_running) {
       await TripReader.setRunning(false);
       return _refresh();
+    }
+    // With billing on, starting needs an active subscription.
+    final subs = widget.subscriptions;
+    if (subs.needsSubscription &&
+        !await SubscriptionScreen.show(context, subs)) {
+      return;
     }
     // First start: the one permission the app needs is asked here, always
     // after the disclosure Google Play requires.
@@ -115,9 +128,67 @@ class _PanelScreenState extends State<PanelScreen> with WidgetsBindingObserver {
           const SizedBox(height: 12),
           _ServiceCard(onDisable: _disableService),
         ],
+        _PlanStatus(subscriptions: widget.subscriptions),
         const SizedBox(height: 28),
         _Filters(prefs: widget.prefs),
       ],
+    );
+  }
+}
+
+/// The free-beta notice while billing is off, or the subscription's state
+/// (with a link to manage it in Play) while it's on.
+class _PlanStatus extends StatelessWidget {
+  const _PlanStatus({required this.subscriptions});
+
+  final SubscriptionController subscriptions;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    return ListenableBuilder(
+      listenable: subscriptions,
+      builder: (context, _) {
+        final subs = subscriptions;
+        final beta = subs.betaMessage;
+        final ent = subs.entitlement;
+        final String text;
+        if (beta != null) {
+          text = beta;
+        } else if (subs.config.paywallEnabled && subs.isSubscribed) {
+          final until = ent.expiresAt?.toLocal();
+          text = until == null
+              ? t.subActive
+              : ent.inTrial
+              ? t.subTrialUntil(until)
+              : t.subActiveUntil(until);
+        } else {
+          return const SizedBox.shrink();
+        }
+        return Padding(
+          padding: const EdgeInsets.only(top: 12),
+          child: AppCard(
+            padding: EdgeInsets.fromLTRB(16, 14, beta != null ? 16 : 8, 14),
+            child: Row(
+              children: [
+                IconTile(
+                  icon: beta != null
+                      ? Icons.campaign_outlined
+                      : Icons.workspace_premium_outlined,
+                ),
+                const SizedBox(width: 14),
+                Expanded(child: Text(text)),
+                if (beta == null)
+                  TextButton(
+                    onPressed: () =>
+                        openManageSubscription(subs.config.productId),
+                    child: Text(t.btnManageSubscription),
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

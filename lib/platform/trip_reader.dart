@@ -50,4 +50,20 @@ abstract final class TripReader {
     if (!Platform.isAndroid) return;
     await _channel.invokeMethod<void>('setRunning', running);
   }
+
+  /// Analysis stops by itself after [at] (null = never), so a lapsed
+  /// subscription stops even if this app isn't opened again.
+  static Future<void> setLockAt(DateTime? at) async {
+    if (!Platform.isAndroid) return;
+    await _channel.invokeMethod<void>(
+      'setLockAt',
+      at?.millisecondsSinceEpoch ?? 0,
+    );
+  }
+
+  /// Opens [url] in whatever app handles it; false if none can.
+  static Future<bool> openUrl(String url) async {
+    if (!Platform.isAndroid) return false;
+    return await _channel.invokeMethod<bool>('openUrl', url) ?? false;
+  }
 }

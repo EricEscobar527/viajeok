@@ -58,7 +58,7 @@ class TripReaderService : AccessibilityService() {
 
     // Stopping analysis from the app hides the popup right away.
     private val prefsListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-        if (key == "running" && !state.running) handler.post(hide)
+        if ((key == "running" || key == "lock_at") && !state.running) handler.post(hide)
     }
 
     override fun onServiceConnected() {

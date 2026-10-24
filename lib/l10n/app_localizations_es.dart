@@ -249,7 +249,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get disclosureStorageText =>
-      'La información se procesa en tu teléfono. No se envía a nuestros servidores ni se comparte con terceros. Solo se guarda en tu dispositivo un historial de viajes evaluados, que puedes borrar cuando quieras.';
+      'La información se procesa en tu teléfono. No se envía a nuestros servidores ni se comparte con terceros. Los datos de las ofertas no se guardan: se descartan al cerrarse la oferta.';
 
   @override
   String get disclosureControlTitle => 'Cómo desactivarlo';
@@ -263,4 +263,137 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get disclosureDecline => 'No acepto';
+
+  @override
+  String get subTitle => 'Suscripción ViajeOK';
+
+  @override
+  String get subSubtitle =>
+      'Sigue sabiendo al instante si cada viaje te conviene.';
+
+  @override
+  String get subFeatureAnalysis => 'Alerta en cada oferta';
+
+  @override
+  String get subFeatureAnalysisText =>
+      'Verde o roja sobre DiDi y Uber, según tus mínimos.';
+
+  @override
+  String get subFeatureFilters => 'Tus mínimos';
+
+  @override
+  String get subFeatureFiltersText => 'Por hora, por km y pickup máximo.';
+
+  @override
+  String get subFeatureCancel => 'Sin plazos forzosos';
+
+  @override
+  String get subFeatureCancelText =>
+      'Cancela cuando quieras desde Google Play.';
+
+  @override
+  String subPricePerMonth(String price) {
+    return '$price al mes';
+  }
+
+  @override
+  String subTrialDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count días gratis',
+      one: '1 día gratis',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subTrialWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count semanas gratis',
+      one: '1 semana gratis',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subTrialMonths(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count meses gratis',
+      one: '1 mes gratis',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subTrialThen(String price) {
+    return 'Después, $price al mes';
+  }
+
+  @override
+  String get btnStartTrial => 'Empezar prueba gratis';
+
+  @override
+  String get btnSubscribe => 'Suscribirme';
+
+  @override
+  String get btnRestorePurchase => 'Restaurar compra';
+
+  @override
+  String get btnManageSubscription => 'Administrar';
+
+  @override
+  String get btnRetry => 'Reintentar';
+
+  @override
+  String get subRenewalNote =>
+      'Se renueva automáticamente cada mes hasta que la canceles. Cancela cuando quieras en Google Play › Pagos y suscripciones; si cancelas durante la prueba gratis, no se te cobra nada.';
+
+  @override
+  String get subUnavailable =>
+      'No se pudo conectar con Google Play. Revisa tu conexión e intenta de nuevo.';
+
+  @override
+  String get subErrorPurchase =>
+      'No se pudo completar la compra. Intenta de nuevo.';
+
+  @override
+  String get subErrorVerify =>
+      'Google Play registró tu pago, pero aún no pudimos confirmarlo. Toca Restaurar compra en un momento.';
+
+  @override
+  String subActiveUntil(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'Suscripción activa hasta el $dateString';
+  }
+
+  @override
+  String subTrialUntil(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'Prueba gratis hasta el $dateString';
+  }
+
+  @override
+  String get subActive => 'Suscripción activa';
+
+  @override
+  String get updateTitle => 'Actualiza ViajeOK';
+
+  @override
+  String get updateText =>
+      'Esta versión ya no es compatible. Descarga la más reciente en Google Play para seguir usando la app.';
+
+  @override
+  String get btnUpdate => 'Actualizar';
+
+  @override
+  String get privacyPolicy => 'Política de privacidad';
 }

@@ -503,7 +503,7 @@ abstract class AppLocalizations {
   /// No description provided for @disclosureStorageText.
   ///
   /// In es, this message translates to:
-  /// **'La información se procesa en tu teléfono. No se envía a nuestros servidores ni se comparte con terceros. Solo se guarda en tu dispositivo un historial de viajes evaluados, que puedes borrar cuando quieras.'**
+  /// **'La información se procesa en tu teléfono. No se envía a nuestros servidores ni se comparte con terceros. Los datos de las ofertas no se guardan: se descartan al cerrarse la oferta.'**
   String get disclosureStorageText;
 
   /// No description provided for @disclosureControlTitle.
@@ -529,6 +529,180 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'No acepto'**
   String get disclosureDecline;
+
+  /// No description provided for @subTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Suscripción ViajeOK'**
+  String get subTitle;
+
+  /// No description provided for @subSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Sigue sabiendo al instante si cada viaje te conviene.'**
+  String get subSubtitle;
+
+  /// No description provided for @subFeatureAnalysis.
+  ///
+  /// In es, this message translates to:
+  /// **'Alerta en cada oferta'**
+  String get subFeatureAnalysis;
+
+  /// No description provided for @subFeatureAnalysisText.
+  ///
+  /// In es, this message translates to:
+  /// **'Verde o roja sobre DiDi y Uber, según tus mínimos.'**
+  String get subFeatureAnalysisText;
+
+  /// No description provided for @subFeatureFilters.
+  ///
+  /// In es, this message translates to:
+  /// **'Tus mínimos'**
+  String get subFeatureFilters;
+
+  /// No description provided for @subFeatureFiltersText.
+  ///
+  /// In es, this message translates to:
+  /// **'Por hora, por km y pickup máximo.'**
+  String get subFeatureFiltersText;
+
+  /// No description provided for @subFeatureCancel.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin plazos forzosos'**
+  String get subFeatureCancel;
+
+  /// No description provided for @subFeatureCancelText.
+  ///
+  /// In es, this message translates to:
+  /// **'Cancela cuando quieras desde Google Play.'**
+  String get subFeatureCancelText;
+
+  /// No description provided for @subPricePerMonth.
+  ///
+  /// In es, this message translates to:
+  /// **'{price} al mes'**
+  String subPricePerMonth(String price);
+
+  /// No description provided for @subTrialDays.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{1 día gratis} other{{count} días gratis}}'**
+  String subTrialDays(int count);
+
+  /// No description provided for @subTrialWeeks.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{1 semana gratis} other{{count} semanas gratis}}'**
+  String subTrialWeeks(int count);
+
+  /// No description provided for @subTrialMonths.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{1 mes gratis} other{{count} meses gratis}}'**
+  String subTrialMonths(int count);
+
+  /// No description provided for @subTrialThen.
+  ///
+  /// In es, this message translates to:
+  /// **'Después, {price} al mes'**
+  String subTrialThen(String price);
+
+  /// No description provided for @btnStartTrial.
+  ///
+  /// In es, this message translates to:
+  /// **'Empezar prueba gratis'**
+  String get btnStartTrial;
+
+  /// No description provided for @btnSubscribe.
+  ///
+  /// In es, this message translates to:
+  /// **'Suscribirme'**
+  String get btnSubscribe;
+
+  /// No description provided for @btnRestorePurchase.
+  ///
+  /// In es, this message translates to:
+  /// **'Restaurar compra'**
+  String get btnRestorePurchase;
+
+  /// No description provided for @btnManageSubscription.
+  ///
+  /// In es, this message translates to:
+  /// **'Administrar'**
+  String get btnManageSubscription;
+
+  /// No description provided for @btnRetry.
+  ///
+  /// In es, this message translates to:
+  /// **'Reintentar'**
+  String get btnRetry;
+
+  /// No description provided for @subRenewalNote.
+  ///
+  /// In es, this message translates to:
+  /// **'Se renueva automáticamente cada mes hasta que la canceles. Cancela cuando quieras en Google Play › Pagos y suscripciones; si cancelas durante la prueba gratis, no se te cobra nada.'**
+  String get subRenewalNote;
+
+  /// No description provided for @subUnavailable.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo conectar con Google Play. Revisa tu conexión e intenta de nuevo.'**
+  String get subUnavailable;
+
+  /// No description provided for @subErrorPurchase.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo completar la compra. Intenta de nuevo.'**
+  String get subErrorPurchase;
+
+  /// No description provided for @subErrorVerify.
+  ///
+  /// In es, this message translates to:
+  /// **'Google Play registró tu pago, pero aún no pudimos confirmarlo. Toca Restaurar compra en un momento.'**
+  String get subErrorVerify;
+
+  /// No description provided for @subActiveUntil.
+  ///
+  /// In es, this message translates to:
+  /// **'Suscripción activa hasta el {date}'**
+  String subActiveUntil(DateTime date);
+
+  /// No description provided for @subTrialUntil.
+  ///
+  /// In es, this message translates to:
+  /// **'Prueba gratis hasta el {date}'**
+  String subTrialUntil(DateTime date);
+
+  /// No description provided for @subActive.
+  ///
+  /// In es, this message translates to:
+  /// **'Suscripción activa'**
+  String get subActive;
+
+  /// No description provided for @updateTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Actualiza ViajeOK'**
+  String get updateTitle;
+
+  /// No description provided for @updateText.
+  ///
+  /// In es, this message translates to:
+  /// **'Esta versión ya no es compatible. Descarga la más reciente en Google Play para seguir usando la app.'**
+  String get updateText;
+
+  /// No description provided for @btnUpdate.
+  ///
+  /// In es, this message translates to:
+  /// **'Actualizar'**
+  String get btnUpdate;
+
+  /// No description provided for @privacyPolicy.
+  ///
+  /// In es, this message translates to:
+  /// **'Política de privacidad'**
+  String get privacyPolicy;
 }
 
 class _AppLocalizationsDelegate

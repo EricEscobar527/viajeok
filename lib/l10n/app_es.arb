@@ -102,9 +102,89 @@
   "disclosureUseTitle": "Para qué los usa",
   "disclosureUseText": "Para calcular al instante cuánto ganarías por kilómetro y mostrarte si el viaje te conviene según tus criterios. ViajeOK no acepta, rechaza ni toca nada en Uber o DiDi; la decisión siempre es tuya.",
   "disclosureStorageTitle": "Si se guardan o comparten",
-  "disclosureStorageText": "La información se procesa en tu teléfono. No se envía a nuestros servidores ni se comparte con terceros. Solo se guarda en tu dispositivo un historial de viajes evaluados, que puedes borrar cuando quieras.",
+  "disclosureStorageText": "La información se procesa en tu teléfono. No se envía a nuestros servidores ni se comparte con terceros. Los datos de las ofertas no se guardan: se descartan al cerrarse la oferta.",
   "disclosureControlTitle": "Cómo desactivarlo",
   "disclosureControlText": "Puedes desactivar el permiso en cualquier momento en Ajustes > Accesibilidad > ViajeOK. Si lo desactivas, la app deja de evaluar viajes.",
   "disclosureAccept": "Acepto",
-  "disclosureDecline": "No acepto"
+  "disclosureDecline": "No acepto",
+  "subTitle": "Suscripción ViajeOK",
+  "subSubtitle": "Sigue sabiendo al instante si cada viaje te conviene.",
+  "subFeatureAnalysis": "Alerta en cada oferta",
+  "subFeatureAnalysisText": "Verde o roja sobre DiDi y Uber, según tus mínimos.",
+  "subFeatureFilters": "Tus mínimos",
+  "subFeatureFiltersText": "Por hora, por km y pickup máximo.",
+  "subFeatureCancel": "Sin plazos forzosos",
+  "subFeatureCancelText": "Cancela cuando quieras desde Google Play.",
+  "subPricePerMonth": "{price} al mes",
+  "@subPricePerMonth": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "subTrialDays": "{count, plural, =1{1 día gratis} other{{count} días gratis}}",
+  "@subTrialDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "subTrialWeeks": "{count, plural, =1{1 semana gratis} other{{count} semanas gratis}}",
+  "@subTrialWeeks": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "subTrialMonths": "{count, plural, =1{1 mes gratis} other{{count} meses gratis}}",
+  "@subTrialMonths": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "subTrialThen": "Después, {price} al mes",
+  "@subTrialThen": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "btnStartTrial": "Empezar prueba gratis",
+  "btnSubscribe": "Suscribirme",
+  "btnRestorePurchase": "Restaurar compra",
+  "btnManageSubscription": "Administrar",
+  "btnRetry": "Reintentar",
+  "subRenewalNote": "Se renueva automáticamente cada mes hasta que la canceles. Cancela cuando quieras en Google Play › Pagos y suscripciones; si cancelas durante la prueba gratis, no se te cobra nada.",
+  "subUnavailable": "No se pudo conectar con Google Play. Revisa tu conexión e intenta de nuevo.",
+  "subErrorPurchase": "No se pudo completar la compra. Intenta de nuevo.",
+  "subErrorVerify": "Google Play registró tu pago, pero aún no pudimos confirmarlo. Toca Restaurar compra en un momento.",
+  "subActiveUntil": "Suscripción activa hasta el {date}",
+  "@subActiveUntil": {
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "yMMMMd"
+      }
+    }
+  },
+  "subTrialUntil": "Prueba gratis hasta el {date}",
+  "@subTrialUntil": {
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "yMMMMd"
+      }
+    }
+  },
+  "subActive": "Suscripción activa",
+  "updateTitle": "Actualiza ViajeOK",
+  "updateText": "Esta versión ya no es compatible. Descarga la más reciente en Google Play para seguir usando la app.",
+  "btnUpdate": "Actualizar",
+  "privacyPolicy": "Política de privacidad"
 }

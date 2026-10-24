@@ -71,5 +71,85 @@
   "disclosureControlTitle": "[PENDIENTE]",
   "disclosureControlText": "[PENDIENTE]",
   "disclosureAccept": "I agree",
-  "disclosureDecline": "I don't agree"
+  "disclosureDecline": "I don't agree",
+  "subTitle": "ViajeOK subscription",
+  "subSubtitle": "Keep knowing instantly whether each trip is worth it.",
+  "subFeatureAnalysis": "An alert on every offer",
+  "subFeatureAnalysisText": "Green or red over DiDi and Uber, based on your minimums.",
+  "subFeatureFilters": "Your minimums",
+  "subFeatureFiltersText": "Per hour, per km and max pickup.",
+  "subFeatureCancel": "No commitment",
+  "subFeatureCancelText": "Cancel anytime from Google Play.",
+  "subPricePerMonth": "{price} per month",
+  "@subPricePerMonth": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "subTrialDays": "{count, plural, =1{1 day free} other{{count} days free}}",
+  "@subTrialDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "subTrialWeeks": "{count, plural, =1{1 week free} other{{count} weeks free}}",
+  "@subTrialWeeks": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "subTrialMonths": "{count, plural, =1{1 month free} other{{count} months free}}",
+  "@subTrialMonths": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "subTrialThen": "Then {price} per month",
+  "@subTrialThen": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "btnStartTrial": "Start free trial",
+  "btnSubscribe": "Subscribe",
+  "btnRestorePurchase": "Restore purchase",
+  "btnManageSubscription": "Manage",
+  "btnRetry": "Retry",
+  "subRenewalNote": "Renews automatically every month until you cancel. Cancel anytime in Google Play › Payments & subscriptions; cancel during the free trial and you won't be charged.",
+  "subUnavailable": "Couldn't connect to Google Play. Check your connection and try again.",
+  "subErrorPurchase": "The purchase couldn't be completed. Please try again.",
+  "subErrorVerify": "Google Play recorded your payment, but we couldn't confirm it yet. Tap Restore purchase in a moment.",
+  "subActiveUntil": "Subscription active until {date}",
+  "@subActiveUntil": {
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "yMMMMd"
+      }
+    }
+  },
+  "subTrialUntil": "Free trial until {date}",
+  "@subTrialUntil": {
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "yMMMMd"
+      }
+    }
+  },
+  "subActive": "Subscription active",
+  "updateTitle": "Update ViajeOK",
+  "updateText": "This version is no longer supported. Get the latest one on Google Play to keep using the app.",
+  "btnUpdate": "Update",
+  "privacyPolicy": "Privacy policy"
 }

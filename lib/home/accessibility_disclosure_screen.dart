@@ -67,6 +67,7 @@ class AccessibilityDisclosureScreen extends StatelessWidget {
                     _Section(icon: icon, title: title, text: text),
                     const SizedBox(height: 10),
                   ],
+                  const PrivacyPolicyLink(),
                 ],
               ),
             ),

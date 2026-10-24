@@ -239,6 +239,8 @@ class _SupportScreenState extends State<SupportScreen> {
                 icon: Icons.send_rounded,
                 onPressed: _sending ? null : _send,
               ),
+              const SizedBox(height: 12),
+              const PrivacyPolicyLink(),
             ],
           ),
         ),

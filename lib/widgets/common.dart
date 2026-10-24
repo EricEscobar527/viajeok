@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../app_info.dart';
+import '../l10n/app_localizations.dart';
+import '../platform/trip_reader.dart';
 import '../theme/app_theme.dart';
 
 /// Full-width solid white call-to-action with squared corners.
@@ -133,6 +136,22 @@ class FeatureRow extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Centered link to the public privacy policy.
+class PrivacyPolicyLink extends StatelessWidget {
+  const PrivacyPolicyLink({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: TextButton(
+        onPressed: () => TripReader.openUrl(AppInfo.privacyUrl),
+        style: TextButton.styleFrom(foregroundColor: AppColors.textSecondary),
+        child: Text(AppLocalizations.of(context).privacyPolicy),
       ),
     );
   }

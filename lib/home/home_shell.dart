@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../app_info.dart';
+import '../billing/subscription_controller.dart';
 import '../data/app_prefs.dart';
 import '../l10n/app_localizations.dart';
 import '../support/support_screen.dart';
@@ -10,9 +11,14 @@ import 'panel_screen.dart';
 /// Main screen after onboarding: header + the analysis panel. Support is
 /// reached from the header instead of a bottom bar.
 class HomeShell extends StatelessWidget {
-  const HomeShell({super.key, required this.prefs});
+  const HomeShell({
+    super.key,
+    required this.prefs,
+    required this.subscriptions,
+  });
 
   final AppPrefs prefs;
+  final SubscriptionController subscriptions;
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +53,9 @@ class HomeShell extends StatelessWidget {
                 ],
               ),
             ),
-            Expanded(child: PanelScreen(prefs: prefs)),
+            Expanded(
+              child: PanelScreen(prefs: prefs, subscriptions: subscriptions),
+            ),
           ],
         ),
       ),

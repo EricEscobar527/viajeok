@@ -1,6 +1,8 @@
 package cloud.doublee.viajeok
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import cloud.doublee.viajeok.reader.ReaderState
@@ -47,6 +49,11 @@ class MainActivity : FlutterActivity() {
                         reader.running = call.arguments as Boolean
                         result.success(null)
                     }
+                    "setLockAt" -> {
+                        reader.lockAt = (call.arguments as Number).toLong()
+                        result.success(null)
+                    }
+                    "openUrl" -> result.success(openUrl(call.arguments as String))
                     // Attached to support reports (lib/platform/device_info.dart).
                     "deviceInfo" -> result.success(deviceInfo())
                     else -> result.notImplemented()
@@ -56,6 +63,14 @@ class MainActivity : FlutterActivity() {
 
     private fun openServiceSettings() {
         startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+    }
+
+    /** false when no app can open [url] (e.g. market:// without Play). */
+    private fun openUrl(url: String): Boolean = try {
+        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+        true
+    } catch (_: ActivityNotFoundException) {
+        false
     }
 
     private fun deviceInfo(): Map<String, Any?> {

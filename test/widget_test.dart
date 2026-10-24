@@ -5,15 +5,21 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:viajeok/data/app_prefs.dart';
 import 'package:viajeok/main.dart';
 
+import 'billing_fakes.dart';
+
 Future<AppPrefs> _prefs(Map<String, Object> values) async {
   SharedPreferences.setMockInitialValues(values);
   return AppPrefs.load();
 }
 
+/// The app with billing off (the backend can't be reached, no cache).
+MyApp _app(AppPrefs prefs) =>
+    MyApp(prefs: prefs, subscriptions: freeController(prefs));
+
 void main() {
   testWidgets('first launch shows the single welcome screen', (tester) async {
     final prefs = await _prefs({});
-    await tester.pumpWidget(MyApp(prefs: prefs));
+    await tester.pumpWidget(_app(prefs));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Empezar'));
@@ -24,9 +30,7 @@ void main() {
   });
 
   testWidgets('later launches go straight to the panel', (tester) async {
-    await tester.pumpWidget(
-      MyApp(prefs: await _prefs({'onboarding_done': true})),
-    );
+    await tester.pumpWidget(_app(await _prefs({'onboarding_done': true})));
     await tester.pumpAndSettle();
 
     expect(find.text('Iniciar análisis'), findsOneWidget);
@@ -35,9 +39,7 @@ void main() {
   });
 
   testWidgets('turning a minimum on reveals its slider', (tester) async {
-    await tester.pumpWidget(
-      MyApp(prefs: await _prefs({'onboarding_done': true})),
-    );
+    await tester.pumpWidget(_app(await _prefs({'onboarding_done': true})));
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(find.text('Por km'), 200);
     expect(find.byType(Slider), findsNothing);
@@ -57,7 +59,7 @@ void main() {
     tester.platformDispatcher.localesTestValue = const [Locale('en', 'US')];
     addTearDown(tester.platformDispatcher.clearLocalesTestValue);
 
-    await tester.pumpWidget(MyApp(prefs: await _prefs({})));
+    await tester.pumpWidget(_app(await _prefs({})));
     await tester.pumpAndSettle();
 
     expect(find.text('Empezar'), findsOneWidget);
@@ -66,9 +68,7 @@ void main() {
   testWidgets('starting without the service shows the disclosure first', (
     tester,
   ) async {
-    await tester.pumpWidget(
-      MyApp(prefs: await _prefs({'onboarding_done': true})),
-    );
+    await tester.pumpWidget(_app(await _prefs({'onboarding_done': true})));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Iniciar análisis'));

@@ -255,4 +255,136 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get disclosureDecline => 'I don\'t agree';
+
+  @override
+  String get subTitle => 'ViajeOK subscription';
+
+  @override
+  String get subSubtitle =>
+      'Keep knowing instantly whether each trip is worth it.';
+
+  @override
+  String get subFeatureAnalysis => 'An alert on every offer';
+
+  @override
+  String get subFeatureAnalysisText =>
+      'Green or red over DiDi and Uber, based on your minimums.';
+
+  @override
+  String get subFeatureFilters => 'Your minimums';
+
+  @override
+  String get subFeatureFiltersText => 'Per hour, per km and max pickup.';
+
+  @override
+  String get subFeatureCancel => 'No commitment';
+
+  @override
+  String get subFeatureCancelText => 'Cancel anytime from Google Play.';
+
+  @override
+  String subPricePerMonth(String price) {
+    return '$price per month';
+  }
+
+  @override
+  String subTrialDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days free',
+      one: '1 day free',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subTrialWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count weeks free',
+      one: '1 week free',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subTrialMonths(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count months free',
+      one: '1 month free',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subTrialThen(String price) {
+    return 'Then $price per month';
+  }
+
+  @override
+  String get btnStartTrial => 'Start free trial';
+
+  @override
+  String get btnSubscribe => 'Subscribe';
+
+  @override
+  String get btnRestorePurchase => 'Restore purchase';
+
+  @override
+  String get btnManageSubscription => 'Manage';
+
+  @override
+  String get btnRetry => 'Retry';
+
+  @override
+  String get subRenewalNote =>
+      'Renews automatically every month until you cancel. Cancel anytime in Google Play › Payments & subscriptions; cancel during the free trial and you won\'t be charged.';
+
+  @override
+  String get subUnavailable =>
+      'Couldn\'t connect to Google Play. Check your connection and try again.';
+
+  @override
+  String get subErrorPurchase =>
+      'The purchase couldn\'t be completed. Please try again.';
+
+  @override
+  String get subErrorVerify =>
+      'Google Play recorded your payment, but we couldn\'t confirm it yet. Tap Restore purchase in a moment.';
+
+  @override
+  String subActiveUntil(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'Subscription active until $dateString';
+  }
+
+  @override
+  String subTrialUntil(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'Free trial until $dateString';
+  }
+
+  @override
+  String get subActive => 'Subscription active';
+
+  @override
+  String get updateTitle => 'Update ViajeOK';
+
+  @override
+  String get updateText =>
+      'This version is no longer supported. Get the latest one on Google Play to keep using the app.';
+
+  @override
+  String get btnUpdate => 'Update';
+
+  @override
+  String get privacyPolicy => 'Privacy policy';
 }
