@@ -65,16 +65,31 @@ object TripParser {
     )
     private val rateSuffix = Regex("""^\s*/\s*(km|h|hr|min)""", RegexOption.IGNORE_CASE)
 
+    // OCR reads digits as look-alike letters: "lh 44 min" (1 h), "O9 min",
+    // "1O min". Inside number tokens (and an hour count right before "h"),
+    // map O/o → 0 and l/I/| → 1. Tokens without any digit are left alone,
+    // so words aren't touched.
+    private val numberToken = Regex(
+        """(?<![A-Za-zÀ-ÿ])(?=[0-9OolI|.,]*\d)[0-9OolI|][0-9OolI|.,]*(?![A-Za-zÀ-ÿ])""",
+    )
+    private val hourDigit = Regex("""(?<![A-Za-zÀ-ÿ0-9])[lI|](?=\s*h\s*\d)""")
+
+    internal fun ocrDigits(line: String): String =
+        numberToken.replace(hourDigit.replace(line, "1")) { m ->
+            m.value.replace('O', '0').replace('o', '0').replace('l', '1').replace('I', '1').replace('|', '1')
+        }
+
     fun parse(texts: List<String>): TripOffer? {
-        val legs = legs(texts) ?: return null
-        val fare = fare(texts) ?: return null
+        val clean = texts.map(::ocrDigits)
+        val legs = legs(clean) ?: return null
+        val fare = fare(clean) ?: return null
         return TripOffer(fare, legs.pickupMinutes, legs.pickupKm, legs.tripMinutes, legs.tripKm, legs.hasPickup)
     }
 
     fun legs(texts: List<String>): TripLegs? {
         class Leg(val minutes: Double, val km: Double, val isTotal: Boolean)
 
-        val found = texts.flatMap { line ->
+        val found = texts.map(::ocrDigits).flatMap { line ->
             leg.findAll(line).map { m ->
                 val minutes = (m.groupValues[1].toIntOrNull() ?: 0) * 60.0 + m.groupValues[2].toDouble()
                 val dist = m.groupValues[3].replace(',', '.').toDouble()

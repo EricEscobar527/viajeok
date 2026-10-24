@@ -38,6 +38,7 @@ android {
         // flag during build.
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        manifestPlaceholders["appLabel"] = "ViajeOK"
     }
 
     signingConfigs {
@@ -52,6 +53,12 @@ android {
     }
 
     buildTypes {
+        // Debug installs next to the Play Store build (different package), so
+        // diagnostics never require uninstalling the real app.
+        debug {
+            applicationIdSuffix = ".debug"
+            manifestPlaceholders["appLabel"] = "ViajeOK Debug"
+        }
         release {
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
