@@ -33,6 +33,21 @@ class AppPrefs {
     await _prefs.setDouble('filter_${f.kind.name}_value', f.value);
   }
 
+  // Popup labels (Configuración): the user's own short texts, one picked at
+  // random for the top of each green or red popup.
+  static const maxLabels = 5;
+  static const maxLabelLength = 30;
+
+  bool get labelsEnabled => _prefs.getBool('labels_on') ?? false;
+  Future<void> setLabelsEnabled(bool on) => _prefs.setBool('labels_on', on);
+
+  /// [accept] = texts for green popups; otherwise for red ones. May hold
+  /// empty entries the user is still typing; [TripReader] drops those.
+  List<String> labels({required bool accept}) =>
+      _prefs.getStringList(accept ? 'labels_accept' : 'labels_reject') ?? [];
+  Future<void> setLabels(List<String> texts, {required bool accept}) =>
+      _prefs.setStringList(accept ? 'labels_accept' : 'labels_reject', texts);
+
   // Billing state (lib/billing/): the last remote config and subscription
   // status, kept as JSON so the app works offline.
   static const _remoteConfigKey = 'remote_config';

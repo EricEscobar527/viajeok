@@ -43,10 +43,27 @@ class ReaderState(context: Context) {
             }
         }
 
-    /** [config] = {filters: [{kind, enabled, value}]} */
+    /**
+     * The user's own texts for the top of the popup, or null when they
+     * turned labels off or wrote none for this verdict. Random each call.
+     */
+    fun labelFor(accept: Boolean): String? {
+        if (!prefs.getBoolean("labels_on", false)) return null
+        val json = JSONArray(prefs.getString(if (accept) "labels_accept" else "labels_reject", "[]"))
+        return (0 until json.length()).map { json.getString(it) }.filter { it.isNotBlank() }.randomOrNull()
+    }
+
+    /**
+     * [config] = {filters: [{kind, enabled, value}],
+     * labels: {enabled, accept: [String], reject: [String]}}
+     */
     fun setConfig(config: Map<*, *>) {
+        val labels = config["labels"] as? Map<*, *>
         prefs.edit()
             .putString("filters", JSONArray((config["filters"] as List<*>).map { JSONObject(it as Map<*, *>) }).toString())
+            .putBoolean("labels_on", labels?.get("enabled") == true)
+            .putString("labels_accept", JSONArray(labels?.get("accept") as? List<*> ?: emptyList<Any>()).toString())
+            .putString("labels_reject", JSONArray(labels?.get("reject") as? List<*> ?: emptyList<Any>()).toString())
             .apply()
     }
 

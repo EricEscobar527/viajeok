@@ -6,8 +6,13 @@ import android.graphics.PixelFormat
 import android.graphics.Rect
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
+import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.text.TextUtils
+import android.text.style.ForegroundColorSpan
 import android.util.TypedValue
 import android.view.Gravity
+import android.view.View
 import android.view.WindowManager
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -32,39 +37,75 @@ class TripOverlay(private val context: Context) {
 
     /**
      * [app] is the ride app's package; the popup goes where that app's
-     * screen has nothing to tap or read.
+     * screen has nothing to tap or read. [caption] is one of the user's own
+     * texts for this verdict (Configuración), shown on top; null = none.
+     *
+     * Look: a solid verdict band (✓/✕) on the left of a flat, slightly
+     * rounded card, text left-aligned; ViajeOK's own style rather than a
+     * fully outlined pill.
      */
-    fun show(offer: TripOffer, failed: List<FilterKind>, app: String?) {
+    fun show(offer: TripOffer, failed: List<FilterKind>, app: String?, caption: String? = null) {
         hide()
         val accept = failed.isEmpty()
         val color = if (accept) GREEN else RED
+        val radius = dp(CORNER_DP).toFloat()
 
-        val view = LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER_HORIZONTAL
-            setPadding(dp(16), dp(6), dp(16), dp(8))
+        val band = TextView(context).apply {
+            text = if (accept) "✓" else "✕"
+            setTextColor(BACKGROUND)
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f)
+            typeface = Typeface.DEFAULT_BOLD
+            gravity = Gravity.CENTER
+            minWidth = dp(34)
             background = GradientDrawable().apply {
-                setColor(BACKGROUND)
-                cornerRadius = dp(14).toFloat()
-                setStroke(dp(3), color)
+                setColor(color)
+                cornerRadii = floatArrayOf(radius, radius, 0f, 0f, 0f, 0f, radius, radius)
+            }
+        }
+        val detailView = text(detail(offer, failed, short = false), 12.5f, SECONDARY)
+        val body = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(12), dp(7), dp(14), dp(7))
+            if (caption != null) {
+                addView(
+                    text(caption, 12f, LABEL, bold = true).apply {
+                        // One line, cut with "…" so a long text never grows the card.
+                        maxLines = 1
+                        ellipsize = TextUtils.TruncateAt.END
+                        maxWidth = dp(LABEL_MAX_DP)
+                    },
+                )
             }
             // Kept short: it sits at the very top so it doesn't cover the
             // ride app's card, which on Uber can start near the top.
-            addView(text("${money(offer.perKm)}/km  ·  ${money(offer.perHour)}/h", 20f, color, bold = true))
-            addView(
-                text(
-                    "${money(offer.fare)} · ${num(offer.totalKm)} km · ${offer.totalMinutes.toInt()} min",
-                    13f,
-                    SECONDARY,
-                ),
-            )
-            if (!accept) {
-                addView(text(failed.joinToString("  ") { "✕ ${label(it)}" }, 13f, RED))
+            addView(text("${money(offer.perKm)}/km  ·  ${money(offer.perHour)}/h", 18f, color, bold = true))
+            addView(detailView)
+        }
+        val view = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            background = GradientDrawable().apply {
+                setColor(BACKGROUND)
+                cornerRadius = radius
+                setStroke(dp(1), BORDER)
             }
+            addView(band, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT))
+            addView(body)
+        }
+
+        // A WRAP_CONTENT window is first measured narrower than the screen
+        // and wraps the fare line onto a 4th line, so the width is set from
+        // the card's natural size. If several failed minimums don't fit the
+        // screen even so, their short names are used.
+        val maxWidth = context.resources.displayMetrics.widthPixels - dp(16)
+        val unspecified = View.MeasureSpec.UNSPECIFIED
+        view.measure(unspecified, unspecified)
+        if (view.measuredWidth > maxWidth && !accept) {
+            detailView.text = detail(offer, failed, short = true)
+            view.measure(unspecified, unspecified)
         }
 
         val params = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.WRAP_CONTENT,
+            minOf(view.measuredWidth, maxWidth),
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
@@ -84,30 +125,54 @@ class TripOverlay(private val context: Context) {
         card = null
     }
 
-    private fun text(value: String, sp: Float, color: Int, bold: Boolean = false) =
+    private fun text(value: CharSequence, sp: Float, color: Int, bold: Boolean = false) =
         TextView(context).apply {
             text = value
             setTextColor(color)
             setTextSize(TypedValue.COMPLEX_UNIT_SP, sp)
             if (bold) typeface = Typeface.DEFAULT_BOLD
-            gravity = Gravity.CENTER
+            gravity = Gravity.START
+            // Drops the extra space Android adds above/below each line: the
+            // popup must fit between DiDi's button and its card.
+            includeFontPadding = false
+            setLineSpacing(dp(1).toFloat(), 1f)
         }
 
-    private fun label(kind: FilterKind) = when (kind) {
-        FilterKind.perHour -> "Por hora"
-        FilterKind.perKm -> "Por km"
-        FilterKind.maxPickupKm -> "Pickup máx."
+    // Failed minimums go on the same line as the fare, in red, so a red
+    // popup is no taller than a green one: DiDi cards with an extra row
+    // start just below it. Non-breaking spaces keep each name in one piece.
+    private fun detail(offer: TripOffer, failed: List<FilterKind>, short: Boolean): CharSequence {
+        val detail = SpannableStringBuilder(
+            "${money(offer.fare)} · ${num(offer.totalKm)} km · ${offer.totalMinutes.toInt()} min",
+        )
+        if (failed.isNotEmpty()) {
+            val start = detail.length
+            detail.append(failed.joinToString(prefix = "   ", separator = "  ") { "✕ ${label(it, short)}".replace(' ', ' ') })
+            detail.setSpan(ForegroundColorSpan(RED), start, detail.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+        return detail
+    }
+
+    private fun label(kind: FilterKind, short: Boolean) = when (kind) {
+        FilterKind.perHour -> if (short) "$/h" else "Por hora"
+        FilterKind.perKm -> if (short) "$/km" else "Por km"
+        FilterKind.maxPickupKm -> if (short) "Pickup" else "Pickup máx."
     }
 
     private fun money(v: Double) = "$" + String.format(Locale.US, "%.2f", v)
     private fun num(v: Double) = String.format(Locale.US, "%.1f", v)
     // DiDi has a "Rechazo permitido" button at the top right and its card
-    // starts around 27–40% down, so the popup sits in the map between them.
-    // Uber's card can start right below the status bar (tall UberX cards),
-    // so there the popup hugs the status bar to keep the fare visible.
-    private fun topFor(app: String?): Int = when (app) {
-        ReaderState.DIDI_DRIVER -> (context.resources.displayMetrics.heightPixels * DIDI_TOP).toInt()
-        else -> statusBarHeight() + dp(2)
+    // starts around 20–40% down (20% with an extra "Al precio de Express" row),
+    // so the popup sits in the map between them, kept to 3 lines.
+    // Uber's offer cards start around half the screen; right under the
+    // status bar looked too high, so it sits a bit lower (never above the
+    // status bar on short screens).
+    private fun topFor(app: String?): Int {
+        val height = context.resources.displayMetrics.heightPixels
+        return when (app) {
+            ReaderState.DIDI_DRIVER -> (height * DIDI_TOP).toInt()
+            else -> maxOf((height * UBER_TOP).toInt(), statusBarHeight() + dp(2))
+        }
     }
 
     private fun statusBarHeight(): Int {
@@ -123,8 +188,19 @@ class TripOverlay(private val context: Context) {
         val GREEN = Color.parseColor("#34D399")
         val RED = Color.parseColor("#F87171")
         val SECONDARY = Color.parseColor("#B4BAC2")
+        /** The user's label: light gray, softer than plain white. */
+        val LABEL = Color.parseColor("#C9CED6")
+        val BORDER = Color.parseColor("#434A53")
+
+        const val CORNER_DP = 6
+
+        /** Label width cap; the Dart input also limits it to 30 characters. */
+        const val LABEL_MAX_DP = 250
 
         /** Fraction of the screen height where the popup starts on DiDi. */
         const val DIDI_TOP = 0.12
+
+        /** Same, on Uber Driver. */
+        const val UBER_TOP = 0.10
     }
 }

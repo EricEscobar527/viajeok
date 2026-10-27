@@ -151,5 +151,27 @@
   "updateTitle": "Update ViajeOK",
   "updateText": "This version is no longer supported. Get the latest one on Google Play to keep using the app.",
   "btnUpdate": "Update",
-  "privacyPolicy": "Privacy policy"
+  "privacyPolicy": "Privacy policy",
+  "settingsTitle": "Settings",
+  "labelsTitle": "Labels",
+  "labelsOn": "On",
+  "labelsOff": "Off",
+  "labelsHint": "Your own phrases on top of the alert, emojis included. Each alert shows one at random.",
+  "labelsAccepted": "Accepted alerts",
+  "labelsRejected": "Rejected alerts",
+  "labelsAcceptedExample": "E.g. This one's worth it! 🚀",
+  "labelsRejectedExample": "E.g. Wait for the next one 😴",
+  "labelsAdd": "Add text",
+  "labelsRemove": "Remove",
+  "labelsCount": "{count} of {max}",
+  "@labelsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  }
 }

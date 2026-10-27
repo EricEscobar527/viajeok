@@ -186,5 +186,27 @@
   "updateTitle": "Actualiza ViajeOK",
   "updateText": "Esta versión ya no es compatible. Descarga la más reciente en Google Play para seguir usando la app.",
   "btnUpdate": "Actualizar",
-  "privacyPolicy": "Política de privacidad"
+  "privacyPolicy": "Política de privacidad",
+  "settingsTitle": "Configuración",
+  "labelsTitle": "Etiquetas",
+  "labelsOn": "Activo",
+  "labelsOff": "Inactivo",
+  "labelsHint": "Tus propias frases arriba de la alerta, emojis incluidos. En cada alerta sale una al azar.",
+  "labelsAccepted": "Alertas aceptadas",
+  "labelsRejected": "Alertas canceladas",
+  "labelsAcceptedExample": "Ej. ¡Este sí conviene! 🚀",
+  "labelsRejectedExample": "Ej. Mejor el que sigue 😴",
+  "labelsAdd": "Agregar texto",
+  "labelsRemove": "Quitar",
+  "labelsCount": "{count} de {max}",
+  "@labelsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  }
 }

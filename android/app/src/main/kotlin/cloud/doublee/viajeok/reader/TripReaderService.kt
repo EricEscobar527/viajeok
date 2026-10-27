@@ -158,7 +158,9 @@ class TripReaderService : AccessibilityService() {
         // A misread fare on a later poll of the same card isn't a new offer.
         if (offer.legs != currentOffer?.legs) {
             currentOffer = offer
-            overlay.show(offer, TripEvaluator.failed(offer, state.filters), frontPackage)
+            val failed = TripEvaluator.failed(offer, state.filters)
+            // Picked once per offer, so later polls of it keep the same text.
+            overlay.show(offer, failed, frontPackage, state.labelFor(failed.isEmpty()))
         }
     }
 
@@ -174,7 +176,11 @@ class TripReaderService : AccessibilityService() {
             val failed = offer?.let { TripEvaluator.failed(it, state.filters) }
             Log.d(TAG, "debug-image lines(${lines.size})=${lines.joinToString(" | ")}")
             Log.d(TAG, "debug-image offer=$offer failed=$failed")
-            if (offer != null) overlay.show(offer, failed!!, app) else overlay.hide()
+            if (offer != null) {
+                overlay.show(offer, failed!!, app, state.labelFor(failed.isEmpty()))
+            } else {
+                overlay.hide()
+            }
             onResult("offer=$offer failed=$failed")
         }
     }

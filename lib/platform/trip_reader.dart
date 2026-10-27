@@ -30,14 +30,23 @@ abstract final class TripReader {
     return await _channel.invokeMethod<bool>('disableService') ?? false;
   }
 
-  /// Sends the current filters to the native side.
+  /// Sends the current filters and popup labels to the native side.
   static Future<void> pushConfig(AppPrefs prefs) async {
     if (!Platform.isAndroid) return;
+    List<String> texts(bool accept) => [
+      for (final t in prefs.labels(accept: accept))
+        if (t.trim().isNotEmpty) t.trim(),
+    ];
     await _channel.invokeMethod<void>('setConfig', {
       'filters': [
         for (final f in prefs.filters)
           {'kind': f.kind.name, 'enabled': f.enabled, 'value': f.value},
       ],
+      'labels': {
+        'enabled': prefs.labelsEnabled,
+        'accept': texts(true),
+        'reject': texts(false),
+      },
     });
   }
 

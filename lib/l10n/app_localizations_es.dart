@@ -396,4 +396,43 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get privacyPolicy => 'Política de privacidad';
+
+  @override
+  String get settingsTitle => 'Configuración';
+
+  @override
+  String get labelsTitle => 'Etiquetas';
+
+  @override
+  String get labelsOn => 'Activo';
+
+  @override
+  String get labelsOff => 'Inactivo';
+
+  @override
+  String get labelsHint =>
+      'Tus propias frases arriba de la alerta, emojis incluidos. En cada alerta sale una al azar.';
+
+  @override
+  String get labelsAccepted => 'Alertas aceptadas';
+
+  @override
+  String get labelsRejected => 'Alertas canceladas';
+
+  @override
+  String get labelsAcceptedExample => 'Ej. ¡Este sí conviene! 🚀';
+
+  @override
+  String get labelsRejectedExample => 'Ej. Mejor el que sigue 😴';
+
+  @override
+  String get labelsAdd => 'Agregar texto';
+
+  @override
+  String get labelsRemove => 'Quitar';
+
+  @override
+  String labelsCount(int count, int max) {
+    return '$count de $max';
+  }
 }

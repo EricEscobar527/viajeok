@@ -88,4 +88,37 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Antes de activar'), findsNothing);
   });
+
+  testWidgets('labels: off by default, up to 5 texts each when on', (
+    tester,
+  ) async {
+    final prefs = await _prefs({'onboarding_done': true});
+    await tester.pumpWidget(_app(prefs));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Configuración'));
+    await tester.pumpAndSettle();
+    expect(find.text('Inactivo'), findsOneWidget);
+    expect(find.text('Alertas aceptadas'), findsNothing);
+
+    await tester.tap(find.byType(Switch));
+    await tester.pumpAndSettle();
+    expect(prefs.labelsEnabled, isTrue);
+    expect(find.text('Alertas aceptadas'), findsOneWidget);
+    expect(find.text('Alertas canceladas'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextField).first, '¡Este sí! 🚀');
+    await tester.pump();
+    expect(prefs.labels(accept: true), ['¡Este sí! 🚀']);
+
+    final add = find.text('Agregar texto').first;
+    for (var i = 0; i < 4; i++) {
+      await tester.tap(add);
+      await tester.pumpAndSettle();
+    }
+    expect(find.text('5 de 5'), findsOneWidget);
+    // The accepted list is full: only the rejected list can still add.
+    expect(find.text('Agregar texto'), findsOneWidget);
+    expect(prefs.labels(accept: true), hasLength(5));
+  });
 }

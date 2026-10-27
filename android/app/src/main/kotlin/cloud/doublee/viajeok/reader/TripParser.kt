@@ -38,14 +38,17 @@ data class TripLegs(
  *   counter-offer chips "$47.04", "$2.46 de tarifa base dinámica".
  * - Uber rides: "$152.75" or "MXN209.86", "A 8 min (3.8 km)",
  *   "Viaje: 1 h 25 min (32.8 km)", "$14.83/km (estimado)", "+$8.00 incluido".
+ * - Uber Moto: legs without "A"/"Viaje:", "$14.91 Turbo+ incluido",
+ *   "Incluye un monto extra de $11"; surge chips on the map OCR as "$ 1.3~1.4x".
  * - Uber deliveries: "MXN44", "Total: 26 min (11.4 km)", "Puede incluir propinas".
  *
  * Two legs mean pickup then trip; a single "Total" leg covers everything.
  */
 object TripParser {
-    // "1 h 5 min (12.3 km)", "8 min (1.8 km)", "3 min (800 m)"
+    // "1 h 5 min (12.3 km)", "8 min (1.8 km)", "3 min (800 m)". OCR also
+    // reads "km" as "knm" or "krn".
     private val leg = Regex(
-        """(?:(\d+)\s*h\s*)?(\d+)\s*min\w*\s*\(\s*(\d+(?:[.,]\d+)?)\s*(km|m)\s*\)""",
+        """(?:(\d+)\s*h\s*)?(\d+)\s*min\w*\s*\(\s*(\d+(?:[.,]\d+)?)\s*(k(?:rn|[mn]{1,2})|m)\s*\)""",
         RegexOption.IGNORE_CASE,
     )
 
@@ -60,10 +63,13 @@ object TripParser {
 
     // Amounts that are not the fare: rates, bonuses already included, tips.
     private val notFareLine = Regex(
-        """incluid|propina|tarifa base|din[aá]mica|estimad""",
+        """inclu[iy]|propina|tarifa base|din[aá]mica|estimad""",
         RegexOption.IGNORE_CASE,
     )
     private val rateSuffix = Regex("""^\s*/\s*(km|h|hr|min)""", RegexOption.IGNORE_CASE)
+
+    // Uber's surge chips on the map ("⚡1.3~1.4x"): OCR reads the bolt as "$".
+    private val multiplierSuffix = Regex("""^\s*(?:[~\-–]\s*\d+(?:[.,]\d+)?\s*)?x""", RegexOption.IGNORE_CASE)
 
     // OCR reads digits as look-alike letters: "lh 44 min" (1 h), "O9 min",
     // "1O min". Inside number tokens (and an hour count right before "h"),
@@ -93,7 +99,7 @@ object TripParser {
             leg.findAll(line).map { m ->
                 val minutes = (m.groupValues[1].toIntOrNull() ?: 0) * 60.0 + m.groupValues[2].toDouble()
                 val dist = m.groupValues[3].replace(',', '.').toDouble()
-                val km = if (m.groupValues[4].equals("m", ignoreCase = true)) dist / 1000 else dist
+                val km = if (m.groupValues[4].startsWith("k", ignoreCase = true)) dist else dist / 1000
                 Leg(minutes, km, total.containsMatchIn(line.substring(0, m.range.first)))
             }.toList()
         }
@@ -108,7 +114,7 @@ object TripParser {
 
     // DiDi's accept button repeats the real fare ("Aceptar $46.04"), unlike
     // the counter-offer chips next to it, so it wins. Otherwise the first
-    // amount that isn't a rate, an included bonus or a tip.
+    // amount that isn't a rate, a surge multiplier, an included bonus or a tip.
     private fun fare(texts: List<String>): Double? {
         texts.firstOrNull { acceptButton.containsMatchIn(it) }
             ?.let { money.find(it) }
@@ -119,7 +125,7 @@ object TripParser {
             for (m in money.findAll(line)) {
                 val before = line.substring(0, m.range.first).trimEnd()
                 val after = line.substring(m.range.last + 1)
-                if (before.endsWith("+") || rateSuffix.containsMatchIn(after)) continue
+                if (before.endsWith("+") || rateSuffix.containsMatchIn(after) || multiplierSuffix.containsMatchIn(after)) continue
                 return amount(m)
             }
         }

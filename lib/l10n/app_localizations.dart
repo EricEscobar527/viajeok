@@ -703,6 +703,78 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Política de privacidad'**
   String get privacyPolicy;
+
+  /// No description provided for @settingsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Configuración'**
+  String get settingsTitle;
+
+  /// No description provided for @labelsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Etiquetas'**
+  String get labelsTitle;
+
+  /// No description provided for @labelsOn.
+  ///
+  /// In es, this message translates to:
+  /// **'Activo'**
+  String get labelsOn;
+
+  /// No description provided for @labelsOff.
+  ///
+  /// In es, this message translates to:
+  /// **'Inactivo'**
+  String get labelsOff;
+
+  /// No description provided for @labelsHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Tus propias frases arriba de la alerta, emojis incluidos. En cada alerta sale una al azar.'**
+  String get labelsHint;
+
+  /// No description provided for @labelsAccepted.
+  ///
+  /// In es, this message translates to:
+  /// **'Alertas aceptadas'**
+  String get labelsAccepted;
+
+  /// No description provided for @labelsRejected.
+  ///
+  /// In es, this message translates to:
+  /// **'Alertas canceladas'**
+  String get labelsRejected;
+
+  /// No description provided for @labelsAcceptedExample.
+  ///
+  /// In es, this message translates to:
+  /// **'Ej. ¡Este sí conviene! 🚀'**
+  String get labelsAcceptedExample;
+
+  /// No description provided for @labelsRejectedExample.
+  ///
+  /// In es, this message translates to:
+  /// **'Ej. Mejor el que sigue 😴'**
+  String get labelsRejectedExample;
+
+  /// No description provided for @labelsAdd.
+  ///
+  /// In es, this message translates to:
+  /// **'Agregar texto'**
+  String get labelsAdd;
+
+  /// No description provided for @labelsRemove.
+  ///
+  /// In es, this message translates to:
+  /// **'Quitar'**
+  String get labelsRemove;
+
+  /// No description provided for @labelsCount.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} de {max}'**
+  String labelsCount(int count, int max);
 }
 
 class _AppLocalizationsDelegate

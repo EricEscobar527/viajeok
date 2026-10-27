@@ -4,6 +4,7 @@ import '../app_info.dart';
 import '../billing/subscription_controller.dart';
 import '../data/app_prefs.dart';
 import '../l10n/app_localizations.dart';
+import '../settings/settings_screen.dart';
 import '../support/support_screen.dart';
 import '../theme/app_theme.dart';
 import 'panel_screen.dart';
@@ -37,6 +38,18 @@ class HomeShell extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: t.settingsTitle,
+                    icon: const Icon(
+                      Icons.settings_outlined,
+                      color: AppColors.textSecondary,
+                    ),
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => SettingsScreen(prefs: prefs),
                       ),
                     ),
                   ),
