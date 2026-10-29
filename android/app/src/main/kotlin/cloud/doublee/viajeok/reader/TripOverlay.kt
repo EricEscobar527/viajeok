@@ -62,7 +62,7 @@ class TripOverlay(private val context: Context) {
                 cornerRadii = floatArrayOf(radius, radius, 0f, 0f, 0f, 0f, radius, radius)
             }
         }
-        val detailView = text(detail(offer, failed, short = false), 12.5f, SECONDARY)
+        val detailView = text(detail(offer, failed, short = false), DETAIL_SP, SECONDARY)
         val body = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(12), dp(7), dp(14), dp(7))
@@ -95,13 +95,19 @@ class TripOverlay(private val context: Context) {
         // A WRAP_CONTENT window is first measured narrower than the screen
         // and wraps the fare line onto a 4th line, so the width is set from
         // the card's natural size. If several failed minimums don't fit the
-        // screen even so, their short names are used.
+        // screen even so, their short names are used, then a smaller font.
         val maxWidth = context.resources.displayMetrics.widthPixels - dp(16)
         val unspecified = View.MeasureSpec.UNSPECIFIED
         view.measure(unspecified, unspecified)
         if (view.measuredWidth > maxWidth && !accept) {
             detailView.text = detail(offer, failed, short = true)
             view.measure(unspecified, unspecified)
+            var sp = DETAIL_SP
+            while (view.measuredWidth > maxWidth && sp > DETAIL_MIN_SP) {
+                sp -= 0.5f
+                detailView.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp)
+                view.measure(unspecified, unspecified)
+            }
         }
 
         val params = WindowManager.LayoutParams(
@@ -193,6 +199,10 @@ class TripOverlay(private val context: Context) {
         val BORDER = Color.parseColor("#434A53")
 
         const val CORNER_DP = 6
+
+        /** Fare line size, and how far it may shrink to stay on one line. */
+        const val DETAIL_SP = 12.5f
+        const val DETAIL_MIN_SP = 10.5f
 
         /** Label width cap; the Dart input also limits it to 30 characters. */
         const val LABEL_MAX_DP = 250

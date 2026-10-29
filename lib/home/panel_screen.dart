@@ -203,26 +203,30 @@ class _ServiceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
+    // Kept compact: it's a secondary action, not the panel's focus.
     return AppCard(
-      padding: const EdgeInsets.fromLTRB(16, 14, 8, 14),
+      padding: const EdgeInsets.fromLTRB(12, 8, 4, 8),
       child: Row(
         children: [
-          const IconTile(icon: Icons.document_scanner_outlined),
-          const SizedBox(width: 14),
+          const IconTile(icon: Icons.document_scanner_outlined, size: 30),
+          const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   t.serviceOnTitle,
-                  style: const TextStyle(fontWeight: FontWeight.w700),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13,
+                  ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 1),
                 Text(
                   t.serviceOnText,
                   style: const TextStyle(
                     color: AppColors.textSecondary,
-                    fontSize: 13,
+                    fontSize: 11.5,
                   ),
                 ),
               ],
@@ -230,7 +234,15 @@ class _ServiceCard extends StatelessWidget {
           ),
           TextButton(
             onPressed: onDisable,
-            style: TextButton.styleFrom(foregroundColor: AppColors.red),
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.red,
+              visualDensity: VisualDensity.compact,
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              textStyle: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             child: Text(t.btnDisableService),
           ),
         ],

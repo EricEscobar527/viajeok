@@ -189,6 +189,42 @@ class UberParserTest {
     }
 
     @Test
+    fun commaDecimalFareWithMxnAfter() {
+        val o = TripParser.parse(
+            listOf(
+                "9SO.!95", "5:44 * Not Afraid", "2 Moto Exclusiva", "X", "136,20 MXN", "4,64 (35)",
+                "Identidad verificada", "18 min (9.0 km)", "Calle David Alfaro Siqueiros -",
+                "47 min (18.8 km)", "Viaducto Rio de la Piedad, Col Cuchilla", "Aceptar",
+            ),
+        )!!
+        assertEquals(136.20, o.fare, 0.001)
+        // 27.8 km / 65 min → $4.90/km, $125.72/h.
+        assertEquals(4.90, o.perKm, 0.01)
+        assertEquals(125.72, o.perHour, 0.01)
+        val legs = listOf("8 min (2.4 km)", "30 min (19,4 km)")
+        assertEquals(1046.50, TripParser.parse(listOf("1.046,50 MXN") + legs)!!.fare, 0.001)
+        assertEquals(44.0, TripParser.parse(listOf("44 MXN") + legs)!!.fare, 0.001)
+        assertEquals(136.20, TripParser.parse(listOf("$136,20") + legs)!!.fare, 0.001)
+        assertEquals(1046.50, TripParser.parse(listOf("MX$1,046.50") + legs)!!.fare, 0.001)
+        assertEquals(19.4, TripParser.legs(legs)!!.tripKm, 0.001)
+    }
+
+    @Test
+    fun motoRatePerKmEstimateIsNotTheFare() {
+        val o = TripParser.parse(
+            listOf(
+                "& Moto Exclusivo", "X", "$31.65", "$4.95/km est.", "ldentidad verificada * 4.57 (24)",
+                "5 min (2.l km)", "Calle de la Joya N- Melcho Ocampo/", "b 1l min (4.3 km)", "Aceptar",
+            ),
+        )!!
+        assertEquals(31.65, o.fare, 0.001)
+        assertEquals(2.1, o.pickupKm, 0.001)
+        assertEquals(11.0, o.tripMinutes, 0.001)
+        // 6.4 km / 16 min → $4.95/km, the same as Uber's own estimate.
+        assertEquals(4.95, o.perKm, 0.01)
+    }
+
+    @Test
     fun ratingsAndCountsAreNeverFares() {
         assertNull(TripParser.parse(listOf("4.78 (602)", "A 8 min (3.8 km)", "Viaje: 1 h 25 min (32.8 km)")))
     }

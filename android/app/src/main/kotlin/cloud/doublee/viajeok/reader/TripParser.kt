@@ -52,10 +52,13 @@ object TripParser {
         RegexOption.IGNORE_CASE,
     )
 
-    // "$46.04", "MXN209.86", "MXN 44", "MX$1,046.50". A currency marker is
-    // required so ratings, counts and street numbers are never taken as fares.
+    // "$46.04", "MXN209.86", "MXN 44", "MX$1,046.50"; phones set to a
+    // comma-decimal language show Uber fares as "136,20 MXN" or
+    // "1.046,50 MXN". A currency marker is required so ratings, counts and
+    // street numbers are never taken as fares.
     private val money = Regex(
-        """(?:MXN\s*\$?|MX\$|\$)\s?(\d{1,3}(?:,\d{3})+(?:\.\d{1,2})?|\d+(?:\.\d{1,2})?)""",
+        """(?:MXN\s*\$?|MX\$|\$)\s?(\d{1,3}(?:,\d{3})+(?:\.\d{1,2})?|\d+,\d{1,2}(?!\d)|\d+(?:\.\d{1,2})?)""" +
+            """|(\d{1,3}(?:\.\d{3})+(?:,\d{1,2})?|\d+(?:[.,]\d{1,2})?)\s*MXN""",
         RegexOption.IGNORE_CASE,
     )
     private val acceptButton = Regex("""aceptar|accept""", RegexOption.IGNORE_CASE)
@@ -132,5 +135,16 @@ object TripParser {
         return null
     }
 
-    private fun amount(m: MatchResult) = m.groupValues[1].replace(",", "").toDoubleOrNull()
+    // Group 1: "$" first, "," is a thousands separator unless it has only 1–2
+    // digits after it. Group 2: "MXN" last, "." groups thousands, "," is decimal.
+    private fun amount(m: MatchResult): Double? {
+        val (prefixed, suffixed) = m.destructured
+        val digits = when {
+            prefixed.isNotEmpty() ->
+                if (Regex(""",\d{1,2}$""").containsMatchIn(prefixed)) prefixed.replace(',', '.') else prefixed.replace(",", "")
+            Regex("""\.\d{3}""").containsMatchIn(suffixed) -> suffixed.replace(".", "").replace(',', '.')
+            else -> suffixed.replace(',', '.')
+        }
+        return digits.toDoubleOrNull()
+    }
 }
