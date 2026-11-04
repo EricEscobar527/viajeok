@@ -1,9 +1,10 @@
 package cloud.doublee.viajeok.reader
 
 /**
- * A trip offer as read from the DiDi/Uber screen. Uber deliveries only give
- * a combined "Total" leg, so [hasPickup] is false there and the pickup
- * fields are 0.
+ * A trip offer as read from the DiDi/Uber/Rappi screen. Uber deliveries
+ * and Rappi only give a combined distance, so [hasPickup] is false there
+ * and the pickup fields are 0. Rappi shows no time at all, so [hasTime] is
+ * false and $/h can't be known.
  */
 data class TripOffer(
     val fare: Double,
@@ -12,12 +13,13 @@ data class TripOffer(
     val tripMinutes: Double,
     val tripKm: Double,
     val hasPickup: Boolean = true,
+    val hasTime: Boolean = true,
 ) {
     // The driver isn't paid for driving to the passenger, so pickup counts too.
     val totalKm get() = pickupKm + tripKm
     val totalMinutes get() = pickupMinutes + tripMinutes
     val perKm get() = if (totalKm > 0) fare / totalKm else 0.0
-    val perHour get() = if (totalMinutes > 0) fare / (totalMinutes / 60) else 0.0
+    val perHour get() = if (hasTime && totalMinutes > 0) fare / (totalMinutes / 60) else 0.0
 
     val legs get() = TripLegs(pickupMinutes, pickupKm, tripMinutes, tripKm, hasPickup)
 }
@@ -41,6 +43,9 @@ data class TripLegs(
  * - Uber Moto: legs without "A"/"Viaje:", "$14.91 Turbo+ incluido",
  *   "Incluye un monto extra de $11"; surge chips on the map OCR as "$ 1.3~1.4x".
  * - Uber deliveries: "MXN44", "Total: 26 min (11.4 km)", "Puede incluir propinas".
+ * - Rappi (SoyRappi), read by [parseRappi] only: "Nuevo pedido" / "Aceptar
+ *   pedido", "$24.00", the route's total "2.4 km" (alone or "$51.00 9.1 km"),
+ *   no time.
  *
  * Two legs mean pickup then trip; a single "Total" leg covers everything.
  */
@@ -88,11 +93,53 @@ object TripParser {
             m.value.replace('O', '0').replace('o', '0').replace('l', '1').replace('I', '1').replace('|', '1')
         }
 
+    /** Reads the offer of [app]'s screen: Rappi has its own format. */
+    fun parse(texts: List<String>, app: String?): TripOffer? =
+        if (app == ReaderState.RAPPI_COURIER) parseRappi(texts) else parse(texts)
+
+    /** [legs] for [app]'s screen. */
+    fun legs(texts: List<String>, app: String?): TripLegs? =
+        if (app == ReaderState.RAPPI_COURIER) rappiLegs(texts) else legs(texts)
+
+    /** DiDi and Uber. */
     fun parse(texts: List<String>): TripOffer? {
         val clean = texts.map(::ocrDigits)
         val legs = legs(clean) ?: return null
         val fare = fare(clean) ?: return null
         return TripOffer(fare, legs.pickupMinutes, legs.pickupKm, legs.tripMinutes, legs.tripKm, legs.hasPickup)
+    }
+
+    // Rappi cards have no "min (km)" legs, just the route's total distance.
+    // A distance and a fare alone could be anything on Rappi's other screens
+    // (an order in progress), so the new-order header is required too.
+    private val rappiNewOrder = Regex("""nuevo\s*pedido|aceptar\s*pedido""", RegexOption.IGNORE_CASE)
+    private val rappiDistance = Regex(
+        """(?<![\d.,])(\d+(?:[.,]\d+)?)\s*(?:k(?:rn|[mn]{1,2}))(?![A-Za-zÀ-ÿ])""",
+        RegexOption.IGNORE_CASE,
+    )
+
+    fun parseRappi(texts: List<String>): TripOffer? {
+        val clean = texts.map(::ocrDigits)
+        val legs = rappiLegs(clean) ?: return null
+        val fare = fare(clean) ?: return null
+        return TripOffer(fare, 0.0, 0.0, 0.0, legs.tripKm, hasPickup = false, hasTime = false)
+    }
+
+    private fun rappiLegs(texts: List<String>): TripLegs? {
+        val clean = texts.map(::ocrDigits)
+        if (clean.none { rappiNewOrder.containsMatchIn(it) }) return null
+        val digits = clean.firstNotNullOfOrNull { rappiDistance.find(it) }?.groupValues?.get(1) ?: return null
+        val km = rappiKm(digits)?.takeIf { it > 0 } ?: return null
+        return TripLegs(0.0, 0.0, 0.0, km, hasPickup = false)
+    }
+
+    // Rappi always shows one decimal ("2.0 km", "9.1 km"). Its small, tight
+    // font makes OCR drop the point ("91 km"), so a number without one gets
+    // it back before the last digit.
+    private fun rappiKm(digits: String): Double? = when {
+        digits.contains('.') || digits.contains(',') -> digits.replace(',', '.').toDoubleOrNull()
+        digits.length >= 2 -> "${digits.dropLast(1)}.${digits.last()}".toDoubleOrNull()
+        else -> digits.toDoubleOrNull()
     }
 
     fun legs(texts: List<String>): TripLegs? {

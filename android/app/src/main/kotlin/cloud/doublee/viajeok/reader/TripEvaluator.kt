@@ -24,11 +24,13 @@ object TripEvaluator {
     /**
      * Enabled filters the trip fails. Empty means accept (green). Pickup
      * distance can't be judged on offers that only give a total (Uber
-     * deliveries), so that filter is skipped there.
+     * deliveries, Rappi), nor $/h on offers without a time (Rappi), so
+     * those filters are skipped there.
      */
     fun failed(trip: TripOffer, filters: List<TripFilter>): List<FilterKind> =
         filters
             .filter { it.enabled && (trip.hasPickup || it.kind != FilterKind.maxPickupKm) }
+            .filter { trip.hasTime || it.kind != FilterKind.perHour }
             .filter { !it.passes(trip) }
             .map { it.kind }
 }

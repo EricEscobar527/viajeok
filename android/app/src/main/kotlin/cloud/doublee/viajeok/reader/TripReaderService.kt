@@ -14,7 +14,7 @@ import android.view.accessibility.AccessibilityNodeInfo
 import android.view.accessibility.AccessibilityWindowInfo
 
 /**
- * "Lectura de pantalla": reads the trip offer from DiDi/Uber while analysis
+ * "Lectura de pantalla": reads the trip offer from DiDi/Uber/Rappi while analysis
  * is running, and shows [TripOverlay] with the verdict. Uses the apps'
  * accessibility text when they expose it, and falls back to [ScreenOcr]
  * when an offer card is on screen without readable text (DiDi).
@@ -103,7 +103,7 @@ class TripReaderService : AccessibilityService() {
 
     private fun scanScreen() {
         val texts = readTexts()
-        val offer = TripParser.parse(texts)
+        val offer = TripParser.parse(texts, frontPackage)
         if (debug) {
             Log.d(TAG, "scan texts(${texts.size})=${texts.take(60).joinToString(" | ")}")
             Log.d(TAG, "offer=$offer")
@@ -117,14 +117,14 @@ class TripReaderService : AccessibilityService() {
 
     // Busy or rate-limited reads are simply skipped; the next poll retries.
     private fun scanWithOcr() {
-        ocr.read(exclude = overlay.screenBounds()) { lines ->
-            val offer = TripParser.parse(lines)
+        ocr.read(exclude = overlay.screenBounds(), fullSize = frontPackage == ReaderState.RAPPI_COURIER) { lines ->
+            val offer = TripParser.parse(lines, frontPackage)
             if (debug) Log.d(TAG, "ocr lines(${lines.size})=${lines.joinToString(" | ")} offer=$offer")
             when {
                 offer != null -> showOffer(offer)
                 // Our popup can cover the fare on tall cards (Uber); the same
                 // legs still on screen means it's the same offer.
-                currentOffer?.legs == TripParser.legs(lines) && currentOffer != null ->
+                currentOffer?.legs == TripParser.legs(lines, frontPackage) && currentOffer != null ->
                     offerStillVisible()
                 else -> offerGone()
             }
@@ -166,13 +166,13 @@ class TripReaderService : AccessibilityService() {
 
     /**
      * Debug builds only: runs a saved screenshot through OCR → parser →
-     * filters → popup. Lets Uber/DiDi cards be checked
+     * filters → popup. Lets Uber/DiDi/Rappi cards be checked
      * on a real phone without a live offer (see DebugOfferActivity).
      */
     fun analyzeForDebug(bitmap: android.graphics.Bitmap, app: String, onResult: (String) -> Unit) {
         if (!debug) return
         ocr.recognize(bitmap) { lines ->
-            val offer = TripParser.parse(lines)
+            val offer = TripParser.parse(lines, app)
             val failed = offer?.let { TripEvaluator.failed(it, state.filters) }
             Log.d(TAG, "debug-image lines(${lines.size})=${lines.joinToString(" | ")}")
             Log.d(TAG, "debug-image offer=$offer failed=$failed")

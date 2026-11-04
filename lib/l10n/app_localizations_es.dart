@@ -16,10 +16,10 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get welcomeText =>
-      'Te decimos al instante si una oferta de DiDi o Uber te conviene.';
+      'Te decimos al instante si una oferta de DiDi, Uber o Rappi te conviene.';
 
   @override
-  String get featureReadTitle => 'Lee cada oferta de DiDi y Uber';
+  String get featureReadTitle => 'Lee cada oferta de DiDi, Uber y Rappi';
 
   @override
   String get featureReadText =>
@@ -51,13 +51,14 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get panelHintIdle =>
-      'Después abre DiDi o Uber; te avisamos en cada oferta.';
+      'Después abre DiDi, Uber o Rappi; te avisamos en cada oferta.';
 
   @override
   String get panelRunning => 'Analizando ofertas';
 
   @override
-  String get panelHintRunning => 'Abre DiDi o Uber y espera tus ofertas.';
+  String get panelHintRunning =>
+      'Abre DiDi, Uber o Rappi y espera tus ofertas.';
 
   @override
   String get filtersTitle => 'Mis mínimos';
@@ -89,7 +90,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get filterPerHourHint =>
-      'Ganancia mínima por hora, contando el tiempo para recoger.';
+      'Ganancia mínima por hora, contando el tiempo para recoger. No aplica en Rappi, que no muestra el tiempo.';
 
   @override
   String get filterPerKmHint =>
@@ -97,7 +98,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get filterMaxPickupHint =>
-      'Distancia máxima que manejas sin cobrar para recoger.';
+      'Distancia máxima que manejas sin cobrar para recoger. No aplica en Rappi.';
 
   @override
   String filterMaxPickupValue(String value) {
@@ -119,7 +120,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get supportIssueAlertNotShown =>
-      'No sale la alerta en DiDi o Uber aunque ViajeOK está encendido';
+      'No sale la alerta en DiDi, Uber o Rappi aunque ViajeOK está encendido';
 
   @override
   String get supportIssueOther => 'Otro problema';
@@ -228,21 +229,21 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get disclosureIntro =>
-      'ViajeOK usa el Servicio de Accesibilidad de Android para leer la información de las ofertas de viaje que aparecen en tu pantalla en Uber y DiDi.';
+      'ViajeOK usa el Servicio de Accesibilidad de Android para leer la información de las ofertas de viaje que aparecen en tu pantalla en Uber, DiDi y Rappi.';
 
   @override
   String get disclosureDataTitle => 'Qué datos lee';
 
   @override
   String get disclosureDataText =>
-      'Mientras el análisis está activo y Uber o DiDi están en pantalla, ViajeOK captura y procesa en tu teléfono la pantalla de esas apps para extraer los datos de la oferta de viaje: tarifa, distancia, tiempo estimado y zona de origen y destino. Todo lo demás que aparezca en la pantalla se descarta. No captura otras apps.';
+      'Mientras el análisis está activo y Uber, DiDi o Rappi están en pantalla, ViajeOK captura y procesa en tu teléfono la pantalla de esas apps para extraer los datos de la oferta de viaje: tarifa, distancia, tiempo estimado y zona de origen y destino. Todo lo demás que aparezca en la pantalla se descarta. No captura otras apps.';
 
   @override
   String get disclosureUseTitle => 'Para qué los usa';
 
   @override
   String get disclosureUseText =>
-      'Para calcular al instante cuánto ganarías por kilómetro y mostrarte si el viaje te conviene según tus criterios. ViajeOK no acepta, rechaza ni toca nada en Uber o DiDi; la decisión siempre es tuya.';
+      'Para calcular al instante cuánto ganarías por kilómetro y mostrarte si el viaje te conviene según tus criterios. ViajeOK no acepta, rechaza ni toca nada en Uber, DiDi o Rappi; la decisión siempre es tuya.';
 
   @override
   String get disclosureStorageTitle => 'Si se guardan o comparten';
@@ -276,7 +277,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get subFeatureAnalysisText =>
-      'Verde o roja sobre DiDi y Uber, según tus mínimos.';
+      'Verde o roja sobre DiDi, Uber y Rappi, según tus mínimos.';
 
   @override
   String get subFeatureFilters => 'Tus mínimos';

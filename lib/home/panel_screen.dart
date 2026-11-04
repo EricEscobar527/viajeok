@@ -43,7 +43,7 @@ class _PanelScreenState extends State<PanelScreen> with WidgetsBindingObserver {
     super.dispose();
   }
 
-  // Re-read the state when coming back from DiDi/Uber or from Settings.
+  // Re-read the state when coming back from DiDi/Uber/Rappi or from Settings.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) _refresh();

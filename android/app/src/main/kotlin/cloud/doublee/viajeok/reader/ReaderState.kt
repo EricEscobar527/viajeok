@@ -31,7 +31,7 @@ class ReaderState(context: Context) {
         get() = lockAt in 1..System.currentTimeMillis()
 
     /** The supported ride apps are fixed; the user can't change them. */
-    val packages: Set<String> = setOf(DIDI_DRIVER, UBER_DRIVER)
+    val packages: Set<String> = setOf(DIDI_DRIVER, UBER_DRIVER, RAPPI_COURIER)
 
     val filters: List<TripFilter>
         get() {
@@ -70,5 +70,8 @@ class ReaderState(context: Context) {
     companion object {
         const val DIDI_DRIVER = "com.didiglobal.driver"
         const val UBER_DRIVER = "com.ubercab.driver"
+
+        /** SoyRappi, Rappi's courier app (not com.grability.rappi, the customers' app). */
+        const val RAPPI_COURIER = "com.rappi.storekeeper"
     }
 }

@@ -107,13 +107,13 @@ abstract class AppLocalizations {
   /// No description provided for @welcomeText.
   ///
   /// In es, this message translates to:
-  /// **'Te decimos al instante si una oferta de DiDi o Uber te conviene.'**
+  /// **'Te decimos al instante si una oferta de DiDi, Uber o Rappi te conviene.'**
   String get welcomeText;
 
   /// No description provided for @featureReadTitle.
   ///
   /// In es, this message translates to:
-  /// **'Lee cada oferta de DiDi y Uber'**
+  /// **'Lee cada oferta de DiDi, Uber y Rappi'**
   String get featureReadTitle;
 
   /// No description provided for @featureReadText.
@@ -173,7 +173,7 @@ abstract class AppLocalizations {
   /// No description provided for @panelHintIdle.
   ///
   /// In es, this message translates to:
-  /// **'Después abre DiDi o Uber; te avisamos en cada oferta.'**
+  /// **'Después abre DiDi, Uber o Rappi; te avisamos en cada oferta.'**
   String get panelHintIdle;
 
   /// No description provided for @panelRunning.
@@ -185,7 +185,7 @@ abstract class AppLocalizations {
   /// No description provided for @panelHintRunning.
   ///
   /// In es, this message translates to:
-  /// **'Abre DiDi o Uber y espera tus ofertas.'**
+  /// **'Abre DiDi, Uber o Rappi y espera tus ofertas.'**
   String get panelHintRunning;
 
   /// No description provided for @filtersTitle.
@@ -227,7 +227,7 @@ abstract class AppLocalizations {
   /// No description provided for @filterPerHourHint.
   ///
   /// In es, this message translates to:
-  /// **'Ganancia mínima por hora, contando el tiempo para recoger.'**
+  /// **'Ganancia mínima por hora, contando el tiempo para recoger. No aplica en Rappi, que no muestra el tiempo.'**
   String get filterPerHourHint;
 
   /// No description provided for @filterPerKmHint.
@@ -239,7 +239,7 @@ abstract class AppLocalizations {
   /// No description provided for @filterMaxPickupHint.
   ///
   /// In es, this message translates to:
-  /// **'Distancia máxima que manejas sin cobrar para recoger.'**
+  /// **'Distancia máxima que manejas sin cobrar para recoger. No aplica en Rappi.'**
   String get filterMaxPickupHint;
 
   /// No description provided for @filterMaxPickupValue.
@@ -275,7 +275,7 @@ abstract class AppLocalizations {
   /// No description provided for @supportIssueAlertNotShown.
   ///
   /// In es, this message translates to:
-  /// **'No sale la alerta en DiDi o Uber aunque ViajeOK está encendido'**
+  /// **'No sale la alerta en DiDi, Uber o Rappi aunque ViajeOK está encendido'**
   String get supportIssueAlertNotShown;
 
   /// No description provided for @supportIssueOther.
@@ -467,7 +467,7 @@ abstract class AppLocalizations {
   /// No description provided for @disclosureIntro.
   ///
   /// In es, this message translates to:
-  /// **'ViajeOK usa el Servicio de Accesibilidad de Android para leer la información de las ofertas de viaje que aparecen en tu pantalla en Uber y DiDi.'**
+  /// **'ViajeOK usa el Servicio de Accesibilidad de Android para leer la información de las ofertas de viaje que aparecen en tu pantalla en Uber, DiDi y Rappi.'**
   String get disclosureIntro;
 
   /// No description provided for @disclosureDataTitle.
@@ -479,7 +479,7 @@ abstract class AppLocalizations {
   /// No description provided for @disclosureDataText.
   ///
   /// In es, this message translates to:
-  /// **'Mientras el análisis está activo y Uber o DiDi están en pantalla, ViajeOK captura y procesa en tu teléfono la pantalla de esas apps para extraer los datos de la oferta de viaje: tarifa, distancia, tiempo estimado y zona de origen y destino. Todo lo demás que aparezca en la pantalla se descarta. No captura otras apps.'**
+  /// **'Mientras el análisis está activo y Uber, DiDi o Rappi están en pantalla, ViajeOK captura y procesa en tu teléfono la pantalla de esas apps para extraer los datos de la oferta de viaje: tarifa, distancia, tiempo estimado y zona de origen y destino. Todo lo demás que aparezca en la pantalla se descarta. No captura otras apps.'**
   String get disclosureDataText;
 
   /// No description provided for @disclosureUseTitle.
@@ -491,7 +491,7 @@ abstract class AppLocalizations {
   /// No description provided for @disclosureUseText.
   ///
   /// In es, this message translates to:
-  /// **'Para calcular al instante cuánto ganarías por kilómetro y mostrarte si el viaje te conviene según tus criterios. ViajeOK no acepta, rechaza ni toca nada en Uber o DiDi; la decisión siempre es tuya.'**
+  /// **'Para calcular al instante cuánto ganarías por kilómetro y mostrarte si el viaje te conviene según tus criterios. ViajeOK no acepta, rechaza ni toca nada en Uber, DiDi o Rappi; la decisión siempre es tuya.'**
   String get disclosureUseText;
 
   /// No description provided for @disclosureStorageTitle.
@@ -551,7 +551,7 @@ abstract class AppLocalizations {
   /// No description provided for @subFeatureAnalysisText.
   ///
   /// In es, this message translates to:
-  /// **'Verde o roja sobre DiDi y Uber, según tus mínimos.'**
+  /// **'Verde o roja sobre DiDi, Uber y Rappi, según tus mínimos.'**
   String get subFeatureAnalysisText;
 
   /// No description provided for @subFeatureFilters.

@@ -37,13 +37,15 @@ class ScreenOcr(private val service: AccessibilityService, private val debug: Bo
      * empty list on failure. Returns false (and does nothing) if a capture
      * is already in flight or Android's ~1/s screenshot limit would hit.
      * Lines overlapping [exclude] (screen coordinates; our own popup) are
-     * dropped.
+     * dropped. [fullSize] skips the usual half-size scaling, for cards with
+     * small text (Rappi's distance chip).
      */
-    fun read(exclude: Rect? = null, onLines: (List<String>) -> Unit): Boolean {
+    fun read(exclude: Rect? = null, fullSize: Boolean = false, onLines: (List<String>) -> Unit): Boolean {
         if (!isSupported || busy) return false
         if (System.currentTimeMillis() - lastShotAt < MIN_INTERVAL_MS) return false
         busy = true
         lastShotAt = System.currentTimeMillis()
+        scale = if (fullSize) 1 else SCALE
         capture { bitmap ->
             if (bitmap == null) {
                 busy = false
@@ -94,12 +96,13 @@ class ScreenOcr(private val service: AccessibilityService, private val debug: Bo
                     cropTopPx = top
                     val soft = hw.copy(Bitmap.Config.ARGB_8888, false)
                     hw.recycle()
-                    // Half resolution is plenty for the card's large text
-                    // and keeps OCR cheap enough to run every poll.
+                    // Half resolution is plenty for DiDi's and Uber's large
+                    // text and keeps OCR cheap enough to run every poll.
                     val cropped = Bitmap.createBitmap(soft, 0, top, soft.width, soft.height - top)
-                    val small = Bitmap.createScaledBitmap(cropped, cropped.width / SCALE, cropped.height / SCALE, true)
-                    if (cropped !== soft) cropped.recycle()
-                    soft.recycle()
+                    if (cropped !== soft) soft.recycle()
+                    if (scale == 1) return onBitmap(cropped)
+                    val small = Bitmap.createScaledBitmap(cropped, cropped.width / scale, cropped.height / scale, true)
+                    cropped.recycle()
                     onBitmap(small)
                 }
 
@@ -111,11 +114,12 @@ class ScreenOcr(private val service: AccessibilityService, private val debug: Bo
         )
     }
 
-    // Screen coordinates → the cropped, half-size image's coordinates.
+    // Screen coordinates → the cropped, scaled image's coordinates.
     private var cropTopPx = 0
+    private var scale = SCALE
 
     private fun toImage(r: Rect, bitmap: Bitmap) =
-        Rect(r.left / SCALE, (r.top - cropTopPx) / SCALE, r.right / SCALE, (r.bottom - cropTopPx) / SCALE)
+        Rect(r.left / scale, (r.top - cropTopPx) / scale, r.right / scale, (r.bottom - cropTopPx) / scale)
             .takeIf { it.bottom > 0 && it.top < bitmap.height }
 
     // Debug builds keep the last few OCR inputs in cache/ocr/ to inspect with

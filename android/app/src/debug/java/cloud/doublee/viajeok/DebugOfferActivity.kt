@@ -20,7 +20,8 @@ import java.io.File
  *   adb shell run-as cloud.doublee.viajeok cp /data/local/tmp/card.jpg files/card.jpg
  *   adb shell am start -n cloud.doublee.viajeok/.DebugOfferActivity --es image card.jpg --es app didi
  *
- * `app` (didi | uber, default uber) picks where the popup is placed.
+ * `app` (didi | uber | rappi, default uber) picks the card format and
+ * where the popup is placed.
  * The result is logged under the ViajeOK tag. Needs the accessibility
  * service enabled (the popup is drawn by it).
  */
@@ -62,7 +63,11 @@ class DebugOfferActivity : Activity() {
             return
         }
         Log.d(TAG, "debug-image: analyzing $name (${bitmap.width}x${bitmap.height})")
-        val app = if (intent.getStringExtra("app") == "didi") ReaderState.DIDI_DRIVER else ReaderState.UBER_DRIVER
+        val app = when (intent.getStringExtra("app")) {
+            "didi" -> ReaderState.DIDI_DRIVER
+            "rappi" -> ReaderState.RAPPI_COURIER
+            else -> ReaderState.UBER_DRIVER
+        }
         service.analyzeForDebug(bitmap, app) { Log.d(TAG, "debug-image result $name: $it") }
     }
 

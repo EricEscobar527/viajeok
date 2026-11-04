@@ -16,10 +16,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get welcomeText =>
-      'We tell you instantly whether a DiDi or Uber offer is worth it.';
+      'We tell you instantly whether a DiDi, Uber or Rappi offer is worth it.';
 
   @override
-  String get featureReadTitle => 'Reads every DiDi and Uber offer';
+  String get featureReadTitle => 'Reads every DiDi, Uber and Rappi offer';
 
   @override
   String get featureReadText => 'Price, distance and time, hands-free';
@@ -50,13 +50,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get panelHintIdle =>
-      'Then open DiDi or Uber; we\'ll flag every offer.';
+      'Then open DiDi, Uber or Rappi; we\'ll flag every offer.';
 
   @override
   String get panelRunning => 'Analyzing offers';
 
   @override
-  String get panelHintRunning => 'Open DiDi or Uber and wait for your offers.';
+  String get panelHintRunning =>
+      'Open DiDi, Uber or Rappi and wait for your offers.';
 
   @override
   String get filtersTitle => 'My minimums';
@@ -88,7 +89,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get filterPerHourHint =>
-      'Minimum earnings per hour, including the time to pick up.';
+      'Minimum earnings per hour, including the time to pick up. Not used for Rappi, which shows no time.';
 
   @override
   String get filterPerKmHint =>
@@ -96,7 +97,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get filterMaxPickupHint =>
-      'Maximum distance you drive unpaid to pick up.';
+      'Maximum distance you drive unpaid to pick up. Not used for Rappi.';
 
   @override
   String filterMaxPickupValue(String value) {
@@ -117,7 +118,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get supportIssueAlertNotShown =>
-      'The alert doesn\'t show in DiDi or Uber even though ViajeOK is on';
+      'The alert doesn\'t show in DiDi, Uber or Rappi even though ViajeOK is on';
 
   @override
   String get supportIssueOther => 'Another problem';
@@ -268,7 +269,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get subFeatureAnalysisText =>
-      'Green or red over DiDi and Uber, based on your minimums.';
+      'Green or red over DiDi, Uber and Rappi, based on your minimums.';
 
   @override
   String get subFeatureFilters => 'Your minimums';

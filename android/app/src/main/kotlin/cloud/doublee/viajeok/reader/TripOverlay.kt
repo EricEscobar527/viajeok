@@ -78,7 +78,9 @@ class TripOverlay(private val context: Context) {
             }
             // Kept short: it sits at the very top so it doesn't cover the
             // ride app's card, which on Uber can start near the top.
-            addView(text("${money(offer.perKm)}/km  ·  ${money(offer.perHour)}/h", 18f, color, bold = true))
+            // Rappi gives no time, so there's no $/h to show.
+            val rates = if (offer.hasTime) "${money(offer.perKm)}/km  ·  ${money(offer.perHour)}/h" else "${money(offer.perKm)}/km"
+            addView(text(rates, 18f, color, bold = true))
             addView(detailView)
         }
         val view = LinearLayout(context).apply {
@@ -148,9 +150,8 @@ class TripOverlay(private val context: Context) {
     // popup is no taller than a green one: DiDi cards with an extra row
     // start just below it. Non-breaking spaces keep each name in one piece.
     private fun detail(offer: TripOffer, failed: List<FilterKind>, short: Boolean): CharSequence {
-        val detail = SpannableStringBuilder(
-            "${money(offer.fare)} · ${num(offer.totalKm)} km · ${offer.totalMinutes.toInt()} min",
-        )
+        val detail = SpannableStringBuilder("${money(offer.fare)} · ${num(offer.totalKm)} km")
+        if (offer.hasTime) detail.append(" · ${offer.totalMinutes.toInt()} min")
         if (failed.isNotEmpty()) {
             val start = detail.length
             detail.append(failed.joinToString(prefix = "   ", separator = "  ") { "✕ ${label(it, short)}".replace(' ', ' ') })
@@ -172,7 +173,8 @@ class TripOverlay(private val context: Context) {
     // so the popup sits in the map between them, kept to 3 lines.
     // Uber's offer cards start around half the screen; right under the
     // status bar looked too high, so it sits a bit lower (never above the
-    // status bar on short screens).
+    // status bar on short screens). Rappi's card starts around 30–40%, with
+    // only map chips above it, so it uses Uber's place.
     private fun topFor(app: String?): Int {
         val height = context.resources.displayMetrics.heightPixels
         return when (app) {
