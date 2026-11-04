@@ -218,6 +218,21 @@ void main() {
     });
   });
 
+  test('the backend sends the free date without time or zone', () async {
+    // GET /app/config since Nov 4, 2026: "beta_ends_at": "2026-12-07" (or null).
+    for (final (json, day) in [
+      ({'beta_ends_at': '2026-12-07'}, DateTime(2026, 12, 7)),
+      ({'beta_ends_at': null}, DateTime(2026, 12, 7)),
+    ]) {
+      final subs = _controller(
+        await _prefs(),
+        backend: FakeBackend(config: RemoteConfig.fromJson(json)),
+      );
+      await subs.start();
+      expect(subs.freeUntil, day);
+    }
+  });
+
   test('reads Play trial periods', () {
     final t = AppLocalizationsEs();
     expect(trialLabel(t, 'P7D'), '7 días gratis');
