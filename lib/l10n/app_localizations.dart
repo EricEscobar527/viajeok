@@ -398,6 +398,24 @@ abstract class AppLocalizations {
   /// **'Entendido'**
   String get supportSentOk;
 
+  /// No description provided for @supportFreeUntil.
+  ///
+  /// In es, this message translates to:
+  /// **'ViajeOK es gratis hasta el {date}.'**
+  String supportFreeUntil(DateTime date);
+
+  /// No description provided for @supportPriceAfter.
+  ///
+  /// In es, this message translates to:
+  /// **'Después, la suscripción costará {prices}.'**
+  String supportPriceAfter(String prices);
+
+  /// No description provided for @supportPricesDefault.
+  ///
+  /// In es, this message translates to:
+  /// **'\$90 al mes, \$200 cada 3 meses o \$500 al año'**
+  String get supportPricesDefault;
+
   /// No description provided for @serviceOnTitle.
   ///
   /// In es, this message translates to:
@@ -602,10 +620,52 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{1 mes gratis} other{{count} meses gratis}}'**
   String subTrialMonths(int count);
 
+  /// No description provided for @subPlanMonthly.
+  ///
+  /// In es, this message translates to:
+  /// **'Mensual'**
+  String get subPlanMonthly;
+
+  /// No description provided for @subPlanQuarterly.
+  ///
+  /// In es, this message translates to:
+  /// **'Trimestral'**
+  String get subPlanQuarterly;
+
+  /// No description provided for @subPlanYearly.
+  ///
+  /// In es, this message translates to:
+  /// **'Anual'**
+  String get subPlanYearly;
+
+  /// No description provided for @subPlanMonths.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} meses'**
+  String subPlanMonths(int count);
+
+  /// No description provided for @subPriceEveryMonths.
+  ///
+  /// In es, this message translates to:
+  /// **'{price} cada {count} meses'**
+  String subPriceEveryMonths(String price, int count);
+
+  /// No description provided for @subPricePerYear.
+  ///
+  /// In es, this message translates to:
+  /// **'{price} al año'**
+  String subPricePerYear(String price);
+
+  /// No description provided for @subSave.
+  ///
+  /// In es, this message translates to:
+  /// **'Ahorras {percent}%'**
+  String subSave(int percent);
+
   /// No description provided for @subTrialThen.
   ///
   /// In es, this message translates to:
-  /// **'Después, {price} al mes'**
+  /// **'Después, {price}'**
   String subTrialThen(String price);
 
   /// No description provided for @btnStartTrial.
@@ -641,7 +701,7 @@ abstract class AppLocalizations {
   /// No description provided for @subRenewalNote.
   ///
   /// In es, this message translates to:
-  /// **'Se renueva automáticamente cada mes hasta que la canceles. Cancela cuando quieras en Google Play › Pagos y suscripciones; si cancelas durante la prueba gratis, no se te cobra nada.'**
+  /// **'Se renueva automáticamente al terminar cada periodo (mes, 3 meses o año) hasta que la canceles. Cancela cuando quieras en Google Play › Pagos y suscripciones; si cancelas durante la prueba gratis, no se te cobra nada.'**
   String get subRenewalNote;
 
   /// No description provided for @subUnavailable.

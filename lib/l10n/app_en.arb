@@ -50,6 +50,24 @@
   "supportSentTitle": "We're reviewing the information",
   "supportSentText": "The average response time is 12 hours.",
   "supportSentOk": "Got it",
+  "supportFreeUntil": "ViajeOK is free until {date}.",
+  "@supportFreeUntil": {
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "yMMMMd"
+      }
+    }
+  },
+  "supportPriceAfter": "After that, the subscription will cost {prices}.",
+  "@supportPriceAfter": {
+    "placeholders": {
+      "prices": {
+        "type": "String"
+      }
+    }
+  },
+  "supportPricesDefault": "$90 per month, $200 every 3 months or $500 per year",
   "serviceOnTitle": "Screen reading is on",
   "serviceOnText": "If a banking app won't let you in, turn it off here.",
   "btnDisableService": "Turn off",
@@ -125,7 +143,7 @@
   "btnRestorePurchase": "Restore purchase",
   "btnManageSubscription": "Manage",
   "btnRetry": "Retry",
-  "subRenewalNote": "Renews automatically every month until you cancel. Cancel anytime in Google Play › Payments & subscriptions; cancel during the free trial and you won't be charged.",
+  "subRenewalNote": "Renews automatically at the end of each period (month, 3 months or year) until you cancel. Cancel anytime in Google Play › Payments & subscriptions; cancel during the free trial and you won't be charged.",
   "subUnavailable": "Couldn't connect to Google Play. Check your connection and try again.",
   "subErrorPurchase": "The purchase couldn't be completed. Please try again.",
   "subErrorVerify": "Google Play recorded your payment, but we couldn't confirm it yet. Tap Restore purchase in a moment.",

@@ -184,6 +184,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get supportSentOk => 'Got it';
 
   @override
+  String supportFreeUntil(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'ViajeOK is free until $dateString.';
+  }
+
+  @override
+  String supportPriceAfter(String prices) {
+    return 'After that, the subscription will cost $prices.';
+  }
+
+  @override
+  String get supportPricesDefault =>
+      '\$90 per month, \$200 every 3 months or \$500 per year';
+
+  @override
   String get serviceOnTitle => 'Screen reading is on';
 
   @override
@@ -322,6 +339,35 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get subPlanMonthly => 'Mensual';
+
+  @override
+  String get subPlanQuarterly => 'Trimestral';
+
+  @override
+  String get subPlanYearly => 'Anual';
+
+  @override
+  String subPlanMonths(int count) {
+    return '$count meses';
+  }
+
+  @override
+  String subPriceEveryMonths(String price, int count) {
+    return '$price cada $count meses';
+  }
+
+  @override
+  String subPricePerYear(String price) {
+    return '$price al año';
+  }
+
+  @override
+  String subSave(int percent) {
+    return 'Ahorras $percent%';
+  }
+
+  @override
   String subTrialThen(String price) {
     return 'Then $price per month';
   }
@@ -343,7 +389,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get subRenewalNote =>
-      'Renews automatically every month until you cancel. Cancel anytime in Google Play › Payments & subscriptions; cancel during the free trial and you won\'t be charged.';
+      'Renews automatically at the end of each period (month, 3 months or year) until you cancel. Cancel anytime in Google Play › Payments & subscriptions; cancel during the free trial and you won\'t be charged.';
 
   @override
   String get subUnavailable =>

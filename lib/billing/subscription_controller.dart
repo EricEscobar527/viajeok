@@ -57,6 +57,7 @@ class SubscriptionController extends ChangeNotifier {
 
   late RemoteConfig _config;
   late Entitlement _entitlement;
+  List<StoreProduct> _plans = const [];
   StoreProduct? _product;
   ProductState _productState = ProductState.loading;
   bool _busy = false;
@@ -65,8 +66,20 @@ class SubscriptionController extends ChangeNotifier {
 
   RemoteConfig get config => _config;
   Entitlement get entitlement => _entitlement;
+
+  /// The plan [buy] subscribes to (the one the user picked).
   StoreProduct? get product => _product;
+
+  /// Every plan Play offers (monthly, every 3 months, yearly), shortest first.
+  List<StoreProduct> get plans => _plans;
   ProductState get productState => _productState;
+
+  void select(StoreProduct plan) {
+    if (identical(plan, _product) || busy) return;
+    _product = plan;
+    _error = null;
+    notifyListeners();
+  }
 
   /// A purchase is being processed.
   bool get busy => _busy;
@@ -86,6 +99,18 @@ class SubscriptionController extends ChangeNotifier {
   /// Free-beta notice text, while billing is off.
   String? get betaMessage =>
       _config.paywallEnabled ? null : _config.betaMessage;
+
+  /// The free launch period ends on this day (the user switches billing on
+  /// the night before). The backend's `beta_ends_at` overrides it.
+  static final defaultFreeUntil = DateTime(2026, 12, 7);
+
+  /// Last free day, for the note in Soporte; null once the backend turns
+  /// billing on, which is the only thing that hides it (no date checks).
+  DateTime? get freeUntil {
+    if (_config.paywallEnabled) return null;
+    final until = (_config.betaEndsAt ?? defaultFreeUntil).toLocal();
+    return DateTime(until.year, until.month, until.day);
+  }
 
   /// Call once at startup: listens to purchases, refreshes the remote
   /// config and re-verifies the subscription Play has for this account
@@ -109,7 +134,8 @@ class SubscriptionController extends ChangeNotifier {
     }
   }
 
-  /// Loads the subscription's price for the subscription screen.
+  /// Loads the subscription's plans and prices for the subscription screen.
+  /// The plan with a free trial (the monthly one) starts selected.
   Future<void> loadProduct() async {
     // Only on a retry: the first call runs during the screen's first build.
     if (_productState != ProductState.loading) {
@@ -118,7 +144,10 @@ class SubscriptionController extends ChangeNotifier {
     }
     try {
       if (await _store.isAvailable()) {
-        _product = await _store.product(_config.productId);
+        _plans = await _store.plans(_config.productId);
+        _product =
+            _plans.where((p) => p.trialPeriod != null).firstOrNull ??
+            _plans.firstOrNull;
       }
     } on Exception catch (e) {
       debugPrint('Subscription product not loaded: $e');

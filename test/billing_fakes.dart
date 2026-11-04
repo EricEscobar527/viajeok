@@ -30,10 +30,15 @@ class FakeBackend implements BillingBackend {
 }
 
 class FakeStore implements Store {
-  FakeStore({this.available = true, this.offered});
+  FakeStore({
+    this.available = true,
+    StoreProduct? offered,
+    List<StoreProduct>? plans,
+  }) : offered = plans ?? [?offered];
 
   bool available;
-  StoreProduct? offered;
+  List<StoreProduct> offered;
+  final bought = <StoreProduct>[];
   final owned = <PurchaseDetails>[];
   final completed = <PurchaseDetails>[];
   final _purchases = StreamController<List<PurchaseDetails>>.broadcast();
@@ -42,6 +47,30 @@ class FakeStore implements Store {
     id: RemoteConfig.defaultProductId,
     price: r'$99.00',
     trialPeriod: 'P7D',
+    raw: Object(),
+  );
+
+  // The three plans as set up in Play Console: 1-month trial + $89/month,
+  // $200 every 3 months, $500 a year.
+  static const monthlyPlan = StoreProduct(
+    id: RemoteConfig.defaultProductId,
+    price: r'$89.00',
+    trialPeriod: 'P1M',
+    priceMicros: 89000000,
+    raw: Object(),
+  );
+  static const quarterlyPlan = StoreProduct(
+    id: RemoteConfig.defaultProductId,
+    price: r'$200.00',
+    billingPeriod: 'P3M',
+    priceMicros: 200000000,
+    raw: Object(),
+  );
+  static const yearlyPlan = StoreProduct(
+    id: RemoteConfig.defaultProductId,
+    price: r'$500.00',
+    billingPeriod: 'P1Y',
+    priceMicros: 500000000,
     raw: Object(),
   );
 
@@ -66,11 +95,13 @@ class FakeStore implements Store {
   Future<bool> isAvailable() async => available;
 
   @override
-  Future<StoreProduct?> product(String id) async => offered;
+  Future<List<StoreProduct>> plans(String id) async => offered;
 
   @override
-  Future<void> buy(StoreProduct product) async =>
-      emit([purchase('new-token', PurchaseStatus.purchased)]);
+  Future<void> buy(StoreProduct product) async {
+    bought.add(product);
+    emit([purchase('new-token', PurchaseStatus.purchased)]);
+  }
 
   @override
   Future<void> restore() async => emit(owned);

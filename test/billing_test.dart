@@ -130,6 +130,94 @@ void main() {
     });
   });
 
+  group('plans', () {
+    test(
+      'monthly with trial starts selected; any plan can be bought',
+      () async {
+        final store = FakeStore(
+          plans: const [
+            FakeStore.monthlyPlan,
+            FakeStore.quarterlyPlan,
+            FakeStore.yearlyPlan,
+          ],
+        );
+        final subs = _controller(
+          await _prefs(),
+          backend: FakeBackend(config: paid, entitlement: active),
+          store: store,
+        );
+        await subs.start();
+        await subs.loadProduct();
+        expect(subs.plans, hasLength(3));
+        expect(subs.product, same(FakeStore.monthlyPlan));
+
+        subs.select(FakeStore.yearlyPlan);
+        await subs.buy();
+        await _settle();
+        expect(store.bought.single, same(FakeStore.yearlyPlan));
+        expect(subs.isSubscribed, isTrue);
+      },
+    );
+
+    test('names, prices and savings', () {
+      final t = AppLocalizationsEs();
+      const m = FakeStore.monthlyPlan;
+      const q = FakeStore.quarterlyPlan;
+      const y = FakeStore.yearlyPlan;
+      expect(
+        [planName(t, m), planName(t, q), planName(t, y)],
+        ['Mensual', 'Trimestral', 'Anual'],
+      );
+      expect(planPrice(t, m), r'$89.00 al mes');
+      expect(planPrice(t, q), r'$200.00 cada 3 meses');
+      expect(planPrice(t, y), r'$500.00 al año');
+      // $200 vs 3 × $89 = $267 → 25%; $500 vs 12 × $89 = $1,068 → 53%.
+      expect(savingsPercent(m, m), isNull);
+      expect(savingsPercent(q, m), 25);
+      expect(savingsPercent(y, m), 53);
+      expect(savingsPercent(y, null), isNull);
+    });
+  });
+
+  group('free until', () {
+    SubscriptionController at(
+      AppPrefs prefs,
+      DateTime clock, {
+      RemoteConfig? config,
+    }) => SubscriptionController(
+      prefs: prefs,
+      backend: FakeBackend(config: config),
+      store: FakeStore(),
+      clock: () => clock,
+    );
+
+    test(
+      'December 7 while free, whatever the date: only billing hides it',
+      () async {
+        final prefs = await _prefs();
+        expect(at(prefs, now).freeUntil, DateTime(2026, 12, 7));
+        expect(
+          at(prefs, DateTime(2026, 12, 20)).freeUntil,
+          DateTime(2026, 12, 7),
+        );
+      },
+    );
+
+    test('hidden once billing is on; the backend can move the date', () async {
+      final paidSubs = at(await _prefs(), now, config: paid);
+      await paidSubs.start();
+      expect(paidSubs.freeUntil, isNull);
+
+      final later = at(
+        await _prefs(),
+        now,
+        config: RemoteConfig(betaEndsAt: DateTime(2026, 12, 12)),
+      );
+      await later.start();
+      expect(later.freeUntil, DateTime(2026, 12, 12));
+    });
+  });
+
   test('reads Play trial periods', () {
     final t = AppLocalizationsEs();
     expect(trialLabel(t, 'P7D'), '7 días gratis');
@@ -167,6 +255,79 @@ void main() {
       // Subscribed: back on the panel, which continues to the disclosure.
       expect(find.text('Empezar prueba gratis'), findsNothing);
       expect(find.text('Antes de activar'), findsOneWidget);
+    });
+
+    testWidgets('shows the three plans and buys the one picked', (
+      tester,
+    ) async {
+      final prefs = await _prefs({'onboarding_done': true});
+      final store = FakeStore(
+        plans: const [
+          FakeStore.monthlyPlan,
+          FakeStore.quarterlyPlan,
+          FakeStore.yearlyPlan,
+        ],
+      );
+      final subs = await started(
+        _controller(
+          prefs,
+          backend: FakeBackend(config: paid, entitlement: active),
+          store: store,
+        ),
+      );
+      await tester.pumpWidget(MyApp(prefs: prefs, subscriptions: subs));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Iniciar análisis'));
+      await tester.pumpAndSettle();
+      expect(find.text('1 mes gratis'), findsOneWidget);
+      expect(find.text(r'Después, $89.00 al mes'), findsOneWidget);
+      expect(find.text(r'$200.00 cada 3 meses'), findsOneWidget);
+      expect(find.text('Ahorras 25%'), findsOneWidget);
+      expect(find.text(r'$500.00 al año'), findsOneWidget);
+      expect(find.text('Ahorras 53%'), findsOneWidget);
+
+      await tester.ensureVisible(find.text(r'$500.00 al año'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(r'$500.00 al año'));
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(find.text('Suscribirme'), 100);
+      await tester.tap(find.text('Suscribirme'));
+      await tester.pumpAndSettle();
+      expect(store.bought.single, same(FakeStore.yearlyPlan));
+    });
+
+    const freeNote =
+        'ViajeOK es gratis hasta el 7 de diciembre de 2026. Después, la '
+        r'suscripción costará $90 al mes, $200 cada 3 meses o $500 al año.';
+
+    Future<void> openSupport(WidgetTester tester, RemoteConfig? config) async {
+      final prefs = await _prefs({'onboarding_done': true});
+      final subs = await started(
+        _controller(
+          prefs,
+          backend: FakeBackend(config: config, entitlement: active),
+        ),
+      );
+      await tester.pumpWidget(MyApp(prefs: prefs, subscriptions: subs));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('Soporte'));
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(find.text('Política de privacidad'), 200);
+    }
+
+    testWidgets('Soporte says until when it is free and the fixed prices', (
+      tester,
+    ) async {
+      await openSupport(tester, null);
+      expect(find.text(freeNote), findsOneWidget);
+    });
+
+    testWidgets('the note goes away once the backend turns billing on', (
+      tester,
+    ) async {
+      await openSupport(tester, paid);
+      expect(find.text(freeNote), findsNothing);
     });
 
     testWidgets('shows the beta notice while billing is off', (tester) async {

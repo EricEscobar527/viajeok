@@ -78,6 +78,24 @@
   "supportSentTitle": "Estamos revisando la información",
   "supportSentText": "El tiempo promedio de respuesta es de 12 horas.",
   "supportSentOk": "Entendido",
+  "supportFreeUntil": "ViajeOK es gratis hasta el {date}.",
+  "@supportFreeUntil": {
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "yMMMMd"
+      }
+    }
+  },
+  "supportPriceAfter": "Después, la suscripción costará {prices}.",
+  "@supportPriceAfter": {
+    "placeholders": {
+      "prices": {
+        "type": "String"
+      }
+    }
+  },
+  "supportPricesDefault": "$90 al mes, $200 cada 3 meses o $500 al año",
   "serviceOnTitle": "Lectura de pantalla activa",
   "serviceOnText": "Si una app de banco no te deja entrar, desactívala aquí.",
   "btnDisableService": "Desactivar",
@@ -147,7 +165,45 @@
       }
     }
   },
-  "subTrialThen": "Después, {price} al mes",
+  "subPlanMonthly": "Mensual",
+  "subPlanQuarterly": "Trimestral",
+  "subPlanYearly": "Anual",
+  "subPlanMonths": "{count} meses",
+  "@subPlanMonths": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "subPriceEveryMonths": "{price} cada {count} meses",
+  "@subPriceEveryMonths": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "subPricePerYear": "{price} al año",
+  "@subPricePerYear": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "subSave": "Ahorras {percent}%",
+  "@subSave": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "subTrialThen": "Después, {price}",
   "@subTrialThen": {
     "placeholders": {
       "price": {
@@ -160,7 +216,7 @@
   "btnRestorePurchase": "Restaurar compra",
   "btnManageSubscription": "Administrar",
   "btnRetry": "Reintentar",
-  "subRenewalNote": "Se renueva automáticamente cada mes hasta que la canceles. Cancela cuando quieras en Google Play › Pagos y suscripciones; si cancelas durante la prueba gratis, no se te cobra nada.",
+  "subRenewalNote": "Se renueva automáticamente al terminar cada periodo (mes, 3 meses o año) hasta que la canceles. Cancela cuando quieras en Google Play › Pagos y suscripciones; si cancelas durante la prueba gratis, no se te cobra nada.",
   "subUnavailable": "No se pudo conectar con Google Play. Revisa tu conexión e intenta de nuevo.",
   "subErrorPurchase": "No se pudo completar la compra. Intenta de nuevo.",
   "subErrorVerify": "Google Play registró tu pago, pero aún no pudimos confirmarlo. Toca Restaurar compra en un momento.",

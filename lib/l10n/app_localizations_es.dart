@@ -187,6 +187,23 @@ class AppLocalizationsEs extends AppLocalizations {
   String get supportSentOk => 'Entendido';
 
   @override
+  String supportFreeUntil(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'ViajeOK es gratis hasta el $dateString.';
+  }
+
+  @override
+  String supportPriceAfter(String prices) {
+    return 'Después, la suscripción costará $prices.';
+  }
+
+  @override
+  String get supportPricesDefault =>
+      '\$90 al mes, \$200 cada 3 meses o \$500 al año';
+
+  @override
   String get serviceOnTitle => 'Lectura de pantalla activa';
 
   @override
@@ -331,8 +348,37 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String get subPlanMonthly => 'Mensual';
+
+  @override
+  String get subPlanQuarterly => 'Trimestral';
+
+  @override
+  String get subPlanYearly => 'Anual';
+
+  @override
+  String subPlanMonths(int count) {
+    return '$count meses';
+  }
+
+  @override
+  String subPriceEveryMonths(String price, int count) {
+    return '$price cada $count meses';
+  }
+
+  @override
+  String subPricePerYear(String price) {
+    return '$price al año';
+  }
+
+  @override
+  String subSave(int percent) {
+    return 'Ahorras $percent%';
+  }
+
+  @override
   String subTrialThen(String price) {
-    return 'Después, $price al mes';
+    return 'Después, $price';
   }
 
   @override
@@ -352,7 +398,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get subRenewalNote =>
-      'Se renueva automáticamente cada mes hasta que la canceles. Cancela cuando quieras en Google Play › Pagos y suscripciones; si cancelas durante la prueba gratis, no se te cobra nada.';
+      'Se renueva automáticamente al terminar cada periodo (mes, 3 meses o año) hasta que la canceles. Cancela cuando quieras en Google Play › Pagos y suscripciones; si cancelas durante la prueba gratis, no se te cobra nada.';
 
   @override
   String get subUnavailable =>

@@ -60,7 +60,10 @@ class HomeShell extends StatelessWidget {
                       color: AppColors.textSecondary,
                     ),
                     onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute<void>(builder: (_) => SupportScreen()),
+                      MaterialPageRoute<void>(
+                        builder: (_) =>
+                            SupportScreen(subscriptions: subscriptions),
+                      ),
                     ),
                   ),
                 ],

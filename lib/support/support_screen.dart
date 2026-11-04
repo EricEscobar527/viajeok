@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../billing/subscription_controller.dart';
 import '../data/support_api.dart';
 import '../l10n/app_localizations.dart';
 import '../platform/device_info.dart';
@@ -11,10 +12,13 @@ import '../widgets/common.dart';
 
 /// Support form: pick the problem, fill the fields it needs, send.
 class SupportScreen extends StatefulWidget {
-  SupportScreen({super.key, SupportApi? api})
+  SupportScreen({super.key, SupportApi? api, this.subscriptions})
     : api = api ?? SupportApi.create();
 
   final SupportApi api;
+
+  /// For the "free until" note under the privacy link; null hides it.
+  final SubscriptionController? subscriptions;
 
   @override
   State<SupportScreen> createState() => _SupportScreenState();
@@ -241,6 +245,8 @@ class _SupportScreenState extends State<SupportScreen> {
               ),
               const SizedBox(height: 12),
               const PrivacyPolicyLink(),
+              if (widget.subscriptions case final subs?)
+                FreeUntilNote(subscriptions: subs),
             ],
           ),
         ),
@@ -467,6 +473,38 @@ class _ScreenshotPicker extends StatelessWidget {
           style: const TextStyle(color: AppColors.textMuted, fontSize: 13),
         ),
       ],
+    );
+  }
+}
+
+/// Small note while the app is free at launch: until when, and what the
+/// plans will cost (fixed text; the user chose not to query Play for it).
+/// Hidden only once the backend turns billing on.
+class FreeUntilNote extends StatelessWidget {
+  const FreeUntilNote({super.key, required this.subscriptions});
+
+  final SubscriptionController subscriptions;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    return ListenableBuilder(
+      listenable: subscriptions,
+      builder: (context, _) {
+        final until = subscriptions.freeUntil;
+        if (until == null) return const SizedBox.shrink();
+        final text =
+            '${t.supportFreeUntil(until)} '
+            '${t.supportPriceAfter(t.supportPricesDefault)}';
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(12, 4, 12, 0),
+          child: Text(
+            text,
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+          ),
+        );
+      },
     );
   }
 }
