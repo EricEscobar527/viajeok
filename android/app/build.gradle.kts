@@ -39,6 +39,8 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
         manifestPlaceholders["appLabel"] = "ViajeOK"
+        // Meta SDK (install attribution for Meta ads): on only in release.
+        manifestPlaceholders["metaSdkEnabled"] = "true"
     }
 
     signingConfigs {
@@ -58,6 +60,8 @@ android {
         debug {
             applicationIdSuffix = ".debug"
             manifestPlaceholders["appLabel"] = "ViajeOK Debug"
+            // The .debug package isn't the app registered in Meta: send nothing.
+            manifestPlaceholders["metaSdkEnabled"] = "false"
         }
         release {
             proguardFiles(
@@ -74,6 +78,15 @@ android {
     }
 }
 
+// A release without Meta's client token would crash the SDK's auto-init.
+gradle.taskGraph.whenReady {
+    val releasing = allTasks.any { it.project == project && it.name.contains("Release") }
+    val metaStrings = file("src/main/res/values/meta_sdk.xml")
+    if (releasing && metaStrings.readText().contains("PENDING_CLIENT_TOKEN")) {
+        throw GradleException("Set facebook_client_token in ${metaStrings.path} before building a release.")
+    }
+}
+
 kotlin {
     compilerOptions {
         jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
@@ -87,5 +100,8 @@ flutter {
 dependencies {
     // On-device OCR for offer cards without accessibility text (DiDi).
     implementation("com.google.mlkit:text-recognition:16.0.1")
+    // Meta SDK, app events only: logs installs/app opens so Meta ads can
+    // optimize for installs. Configured in AndroidManifest.xml.
+    implementation("com.facebook.android:facebook-core:18.3.0")
     testImplementation("junit:junit:4.13.2")
 }

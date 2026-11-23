@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Meta app "ViajeOK" (developers.facebook.com). The client token is meant to
+     ship inside the app (Settings → Advanced → Security → Client token); it is
+     not a secret like the support API token. -->
+<resources>
+    <string name="facebook_app_id" translatable="false">2293563097872736</string>
+    <string name="facebook_client_token" translatable="false">c75f0437198a8f64326362a737c5983a</string>
+</resources>

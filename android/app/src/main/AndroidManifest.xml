@@ -40,6 +40,24 @@
                 android:name="android.accessibilityservice"
                 android:resource="@xml/trip_reader_service" />
         </service>
+        <!-- Meta SDK (facebook-core): reports installs and app opens to Meta
+             for ad attribution. Nothing about trips is ever sent. Off in
+             debug builds (metaSdkEnabled in build.gradle.kts). -->
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/facebook_app_id" />
+        <meta-data
+            android:name="com.facebook.sdk.ClientToken"
+            android:value="@string/facebook_client_token" />
+        <meta-data
+            android:name="com.facebook.sdk.AutoInitEnabled"
+            android:value="${metaSdkEnabled}" />
+        <meta-data
+            android:name="com.facebook.sdk.AutoLogAppEventsEnabled"
+            android:value="${metaSdkEnabled}" />
+        <meta-data
+            android:name="com.facebook.sdk.AdvertiserIDCollectionEnabled"
+            android:value="${metaSdkEnabled}" />
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data
@@ -52,6 +70,13 @@
 
          In particular, this is used by the Flutter engine in io.flutter.plugin.text.ProcessTextPlugin. -->
     <queries>
+        <!-- Meta SDK: lets it read the Facebook app's attribution id, which
+             Meta uses to match installs to ads (and for "Probar eventos"). -->
+        <package android:name="com.facebook.katana" />
+        <package android:name="com.facebook.lite" />
+        <provider android:authorities="com.facebook.katana.provider.PlatformProvider" />
+        <provider android:authorities="com.facebook.katana.provider.AttributionIdProvider" />
+        <provider android:authorities="com.facebook.wakizashi.provider.AttributionIdProvider" />
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
