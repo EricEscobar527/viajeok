@@ -1,9 +1,12 @@
 package cloud.doublee.viajeok
 
+import android.app.ActivityManager
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
+import android.os.PowerManager
 import android.provider.Settings
 import cloud.doublee.viajeok.reader.ReaderState
 import cloud.doublee.viajeok.reader.TripReaderService
@@ -56,6 +59,8 @@ class MainActivity : FlutterActivity() {
                     "openUrl" -> result.success(openUrl(call.arguments as String))
                     // Attached to support reports (lib/platform/device_info.dart).
                     "deviceInfo" -> result.success(deviceInfo())
+                    // State of the reader, also attached to support reports.
+                    "diagnostics" -> result.success(diagnostics(reader))
                     else -> result.notImplemented()
                 }
             }
@@ -71,6 +76,37 @@ class MainActivity : FlutterActivity() {
         true
     } catch (_: ActivityNotFoundException) {
         false
+    }
+
+    /**
+     * Why an alert might not show, for support: whether the accessibility
+     * service is on and running, battery restrictions, which ride apps are
+     * installed, and when the service last saw one in front or read an
+     * offer. Nothing about the offers themselves.
+     */
+    private fun diagnostics(reader: ReaderState): Map<String, Any?> {
+        val power = getSystemService(POWER_SERVICE) as PowerManager
+        val activity = getSystemService(ACTIVITY_SERVICE) as ActivityManager
+        fun version(pkg: String): String? = try {
+            packageManager.getPackageInfo(pkg, 0).versionName ?: "?"
+        } catch (_: PackageManager.NameNotFoundException) {
+            null
+        }
+        return mapOf(
+            "serviceEnabled" to TripReaderService.isEnabled(this),
+            "serviceConnected" to (TripReaderService.instance != null),
+            "running" to reader.running,
+            "locked" to reader.locked,
+            "batteryUnrestricted" to power.isIgnoringBatteryOptimizations(packageName),
+            "backgroundRestricted" to activity.isBackgroundRestricted,
+            "powerSave" to power.isPowerSaveMode,
+            "didi" to version(ReaderState.DIDI_DRIVER),
+            "uber" to version(ReaderState.UBER_DRIVER),
+            "rappi" to version(ReaderState.RAPPI_COURIER),
+            "lastRideApp" to reader.lastRideApp,
+            "lastRideAppAt" to reader.lastRideAppAt,
+            "lastOfferAt" to reader.lastOfferAt,
+        )
     }
 
     private fun deviceInfo(): Map<String, Any?> {

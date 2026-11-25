@@ -21,7 +21,8 @@ class _FakeApi implements SupportApi {
 }
 
 Future<void> _open(WidgetTester tester, SupportApi api) async {
-  tester.view.physicalSize = const Size(1080, 2400);
+  // Tall enough that the whole form is built (it's a lazy ListView).
+  tester.view.physicalSize = const Size(1080, 4800);
   tester.view.devicePixelRatio = 2.5;
   addTearDown(tester.view.reset);
   await tester.pumpWidget(
@@ -68,24 +69,30 @@ void main() {
     await _open(tester, api);
     await _choose(tester, _calc);
 
+    expect(find.text('¿En qué app pasa?'), findsOneWidget);
     expect(find.text('Modelo del celular'), findsOneWidget);
+    expect(find.text('Cuéntanos qué pasó (opcional)'), findsOneWidget);
     expect(find.text('Capturas de pantalla'), findsOneWidget);
     expect(find.text('Correo electrónico'), findsOneWidget);
     expect(find.text('¿Qué problema tuviste?'), findsNothing);
 
     await tester.tap(find.text('Enviar'));
     await tester.pumpAndSettle();
+    expect(find.text('Selecciona la app'), findsOneWidget);
     expect(find.text('Este campo es obligatorio'), findsNWidgets(2));
 
+    // Fields: phone model, comment (optional), email.
     final fields = find.byType(TextFormField);
+    await tester.tap(find.text('Uber'));
     await tester.enterText(fields.at(0), 'Realme 12 Pro');
-    await tester.enterText(fields.at(1), 'no-es-correo');
+    await tester.enterText(fields.at(2), 'no-es-correo');
     await tester.tap(find.text('Enviar'));
     await tester.pumpAndSettle();
+    expect(find.text('Selecciona la app'), findsNothing);
     expect(find.text('Escribe un correo válido'), findsOneWidget);
     expect(api.sent, isEmpty);
 
-    await tester.enterText(fields.at(1), ' chofer@correo.com ');
+    await tester.enterText(fields.at(2), ' chofer@correo.com ');
     await tester.tap(find.text('Enviar'));
     await tester.pumpAndSettle();
 
@@ -101,16 +108,32 @@ void main() {
     expect(ticket.issue, SupportIssue.wrongCalculation);
     expect(ticket.phoneModel, 'Realme 12 Pro');
     expect(ticket.email, 'chofer@correo.com');
+    expect(ticket.rideApp, RideApp.uber);
     expect(ticket.message, isNull);
   });
 
-  testWidgets('alert problem uses the same detailed fields', (tester) async {
+  testWidgets('alert problem sends the app and the optional comment', (
+    tester,
+  ) async {
     final api = _FakeApi();
     await _open(tester, api);
     await _choose(tester, _alert);
 
     expect(find.text('Modelo del celular'), findsOneWidget);
     expect(find.text('Correo electrónico'), findsOneWidget);
+
+    final fields = find.byType(TextFormField);
+    await tester.tap(find.text('DiDi'));
+    await tester.enterText(fields.at(0), 'Galaxy A36');
+    await tester.enterText(fields.at(1), ' No sale nada en las ofertas ');
+    await tester.enterText(fields.at(2), 'chofer@correo.com');
+    await tester.tap(find.text('Enviar'));
+    await tester.pumpAndSettle();
+
+    final ticket = api.sent.single;
+    expect(ticket.issue, SupportIssue.alertNotShown);
+    expect(ticket.rideApp, RideApp.didi);
+    expect(ticket.message, 'No sale nada en las ofertas');
   });
 
   testWidgets('other problem asks what happened and an email', (tester) async {
@@ -140,6 +163,7 @@ void main() {
     expect(ticket.message, 'La app se cierra sola');
     expect(ticket.email, 'chofer@correo.com');
     expect(ticket.phoneModel, isNull);
+    expect(ticket.rideApp, isNull);
     expect(ticket.screenshotPaths, isEmpty);
   });
 

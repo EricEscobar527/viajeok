@@ -30,6 +30,21 @@ class ReaderState(context: Context) {
     val locked: Boolean
         get() = lockAt in 1..System.currentTimeMillis()
 
+    /**
+     * For support reports only (MainActivity `diagnostics`): which ride app
+     * the service last saw in front and when, and when it last read an
+     * offer. Times only, never what the offer said.
+     */
+    var lastRideApp: String?
+        get() = prefs.getString("diag_ride_app", null)
+        set(v) = prefs.edit().putString("diag_ride_app", v).apply()
+    var lastRideAppAt: Long
+        get() = prefs.getLong("diag_ride_app_at", 0L)
+        set(v) = prefs.edit().putLong("diag_ride_app_at", v).apply()
+    var lastOfferAt: Long
+        get() = prefs.getLong("diag_offer_at", 0L)
+        set(v) = prefs.edit().putLong("diag_offer_at", v).apply()
+
     /** The supported ride apps are fixed; the user can't change them. */
     val packages: Set<String> = setOf(DIDI_DRIVER, UBER_DRIVER, RAPPI_COURIER)
 

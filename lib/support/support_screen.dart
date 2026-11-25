@@ -7,6 +7,7 @@ import '../billing/subscription_controller.dart';
 import '../data/support_api.dart';
 import '../l10n/app_localizations.dart';
 import '../platform/device_info.dart';
+import '../platform/reader_diagnostics.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common.dart';
 
@@ -32,8 +33,10 @@ class _SupportScreenState extends State<SupportScreen> {
   final _phoneModel = TextEditingController();
   final _email = TextEditingController();
   final _description = TextEditingController();
+  final _comment = TextEditingController();
 
   SupportIssue? _issue;
+  RideApp? _rideApp;
   List<XFile> _screenshots = [];
   bool _sending = false;
 
@@ -42,6 +45,7 @@ class _SupportScreenState extends State<SupportScreen> {
     _phoneModel.dispose();
     _email.dispose();
     _description.dispose();
+    _comment.dispose();
     super.dispose();
   }
 
@@ -79,6 +83,7 @@ class _SupportScreenState extends State<SupportScreen> {
     if (!_form.currentState!.validate()) return;
     final issue = _issue!;
     final detailed = issue.needsDeviceDetails;
+    final text = (detailed ? _comment.text : _description.text).trim();
 
     setState(() => _sending = true);
     final SupportReceipt receipt;
@@ -88,9 +93,11 @@ class _SupportScreenState extends State<SupportScreen> {
           issue: issue,
           sentAt: DateTime.now(),
           device: await DeviceInfo.load(),
+          diagnostics: await ReaderDiagnostics.load(),
           phoneModel: detailed ? _phoneModel.text.trim() : null,
           email: _email.text.trim(),
-          message: detailed ? null : _description.text.trim(),
+          rideApp: detailed ? _rideApp : null,
+          message: text.isEmpty ? null : text,
           screenshotPaths: detailed
               ? [for (final s in _screenshots) s.path]
               : const [],
@@ -186,6 +193,59 @@ class _SupportScreenState extends State<SupportScreen> {
               ),
               if (issue != null && issue.needsDeviceDetails) ...[
                 const SizedBox(height: 20),
+                _Label(t.supportRideApp),
+                FormField<RideApp>(
+                  validator: (_) =>
+                      _rideApp == null ? t.supportRideAppRequired : null,
+                  builder: (field) => Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          for (final app in RideApp.values)
+                            ChoiceChip(
+                              label: Text(
+                                app == RideApp.other
+                                    ? t.supportRideAppOther
+                                    : app.label,
+                              ),
+                              selected: _rideApp == app,
+                              showCheckmark: false,
+                              backgroundColor: AppColors.surface,
+                              selectedColor: AppColors.surfaceHigh,
+                              side: BorderSide(
+                                color: _rideApp == app
+                                    ? AppColors.accent
+                                    : Colors.transparent,
+                                width: 1.5,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(kRadius),
+                              ),
+                              onSelected: (_) {
+                                setState(() => _rideApp = app);
+                                field.didChange(app);
+                              },
+                            ),
+                        ],
+                      ),
+                      if (field.hasError)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 6),
+                          child: Text(
+                            field.errorText!,
+                            style: const TextStyle(
+                              color: AppColors.red,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
                 _Label(t.supportPhoneModel),
                 TextFormField(
                   controller: _phoneModel,
@@ -195,6 +255,16 @@ class _SupportScreenState extends State<SupportScreen> {
                       (v ?? '').trim().isEmpty ? t.supportFieldRequired : null,
                 ),
                 const SizedBox(height: 20),
+                _Label(t.supportComment),
+                TextFormField(
+                  controller: _comment,
+                  minLines: 2,
+                  maxLines: 6,
+                  maxLength: 1000,
+                  textCapitalization: TextCapitalization.sentences,
+                  decoration: _inputDecoration(hint: t.supportCommentHint),
+                ),
+                const SizedBox(height: 12),
                 _Label(t.supportScreenshots),
                 _ScreenshotPicker(
                   files: _screenshots,
@@ -235,6 +305,17 @@ class _SupportScreenState extends State<SupportScreen> {
                         ? null
                         : t.supportEmailInvalid;
                   },
+                ),
+              ],
+              if (issue != null) ...[
+                const SizedBox(height: 16),
+                Text(
+                  t.supportDiagnosticsNote,
+                  style: const TextStyle(
+                    color: AppColors.textMuted,
+                    fontSize: 12,
+                    height: 1.4,
+                  ),
                 ),
               ],
               const SizedBox(height: 28),

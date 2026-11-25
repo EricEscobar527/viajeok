@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:viajeok/data/support_api.dart';
 import 'package:viajeok/platform/device_info.dart';
+import 'package:viajeok/platform/reader_diagnostics.dart';
 
 void main() {
   const device = DeviceInfo(
@@ -47,6 +48,64 @@ void main() {
     ).toFormFields();
 
     expect(fields.keys, {'issue', 'email', 'message', 'device_time'});
+  });
+
+  test('message carries the comment, ride app and diagnostics', () {
+    final now = DateTime(2026, 11, 25, 12);
+    final diag = ReaderDiagnostics.fromMap({
+      'serviceEnabled': true,
+      'serviceConnected': false,
+      'running': true,
+      'locked': false,
+      'batteryUnrestricted': false,
+      'backgroundRestricted': true,
+      'powerSave': false,
+      'didi': null,
+      'uber': '4.512.10001',
+      'rappi': null,
+      'lastRideApp': 'com.ubercab.driver',
+      'lastRideAppAt': now
+          .subtract(const Duration(minutes: 5))
+          .millisecondsSinceEpoch,
+      'lastOfferAt': 0,
+    });
+    final message = SupportTicket(
+      issue: SupportIssue.alertNotShown,
+      sentAt: now,
+      message: 'No sale nada',
+      rideApp: RideApp.uber,
+      diagnostics: diag,
+    ).toFormFields()['message']!;
+
+    expect(message, startsWith('No sale nada\n\nApp de viajes: Uber\n\n'));
+    expect(
+      message,
+      contains(
+        'Lectura de pantalla activada: sí (pero Android no la está ejecutando)',
+      ),
+    );
+    expect(message, contains('Análisis encendido (Iniciar análisis): sí'));
+    expect(
+      message,
+      contains('Batería sin restricciones: NO · segundo plano RESTRINGIDO'),
+    );
+    expect(
+      message,
+      contains(
+        'Apps: DiDi no instalada · Uber 4.512.10001 · Rappi no instalada',
+      ),
+    );
+    expect(message, contains('Última app de viajes vista: Uber, hace 5 min'));
+    expect(message, contains('Última oferta leída: nunca'));
+  });
+
+  test('no message field when there is nothing to say', () {
+    final fields = SupportTicket(
+      issue: SupportIssue.wrongCalculation,
+      sentAt: DateTime(2026),
+      email: 'a@b.co',
+    ).toFormFields();
+    expect(fields.containsKey('message'), isFalse);
   });
 
   test('device time carries the UTC offset', () {

@@ -98,7 +98,19 @@ class TripReaderService : AccessibilityService() {
             Log.d(TAG, "front=${front?.title} root=$pkg kept=$frontPackage windows=" +
                 windows.joinToString { "${it.type}:${it.title}:${it.root?.packageName}:${if (it.isActive) "A" else ""}" })
         }
-        return frontPackage in state.packages
+        val inFront = frontPackage in state.packages
+        if (inFront) noteRideApp(frontPackage!!)
+        return inFront
+    }
+
+    // For support diagnostics; written at most every 30 s while polling.
+    private var notedAt = 0L
+    private fun noteRideApp(pkg: String) {
+        val now = System.currentTimeMillis()
+        if (now - notedAt < NOTE_EVERY_MS && pkg == state.lastRideApp) return
+        notedAt = now
+        state.lastRideApp = pkg
+        state.lastRideAppAt = now
     }
 
     private fun scanScreen() {
@@ -158,6 +170,7 @@ class TripReaderService : AccessibilityService() {
         // A misread fare on a later poll of the same card isn't a new offer.
         if (offer.legs != currentOffer?.legs) {
             currentOffer = offer
+            state.lastOfferAt = System.currentTimeMillis()
             val failed = TripEvaluator.failed(offer, state.filters)
             // Picked once per offer, so later polls of it keep the same text.
             overlay.show(offer, failed, frontPackage, state.labelFor(failed.isEmpty()))
@@ -236,6 +249,7 @@ class TripReaderService : AccessibilityService() {
         private const val HIDE_AFTER_GONE_MS = 2500L
         private const val MAX_DEPTH = 40
         private const val POLL_MS = 1200L
+        private const val NOTE_EVERY_MS = 30_000L
 
         /** The running service, for the debug-only image check. */
         var instance: TripReaderService? = null

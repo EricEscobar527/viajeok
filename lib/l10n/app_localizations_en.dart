@@ -127,6 +127,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get supportIssueRequired => 'Choose what the problem is';
 
   @override
+  String get supportRideApp => 'Which app does it happen in?';
+
+  @override
+  String get supportRideAppOther => 'Other';
+
+  @override
+  String get supportRideAppRequired => 'Choose the app';
+
+  @override
+  String get supportComment => 'Tell us what happened (optional)';
+
+  @override
+  String get supportCommentHint =>
+      'e.g. I get Uber offers and nothing shows up';
+
+  @override
+  String get supportDiagnosticsNote =>
+      'Your report includes ViajeOK\'s status on your phone: whether screen reading and the analysis are on, whether the battery limits it, and which ride apps you have installed. We never send anything about your trips.';
+
+  @override
   String get supportPhoneModel => 'Phone model';
 
   @override

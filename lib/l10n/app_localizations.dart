@@ -290,6 +290,42 @@ abstract class AppLocalizations {
   /// **'Selecciona qué problema tienes'**
   String get supportIssueRequired;
 
+  /// No description provided for @supportRideApp.
+  ///
+  /// In es, this message translates to:
+  /// **'¿En qué app pasa?'**
+  String get supportRideApp;
+
+  /// No description provided for @supportRideAppOther.
+  ///
+  /// In es, this message translates to:
+  /// **'Otra'**
+  String get supportRideAppOther;
+
+  /// No description provided for @supportRideAppRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona la app'**
+  String get supportRideAppRequired;
+
+  /// No description provided for @supportComment.
+  ///
+  /// In es, this message translates to:
+  /// **'Cuéntanos qué pasó (opcional)'**
+  String get supportComment;
+
+  /// No description provided for @supportCommentHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Ej. me llegan ofertas de Uber y no sale nada'**
+  String get supportCommentHint;
+
+  /// No description provided for @supportDiagnosticsNote.
+  ///
+  /// In es, this message translates to:
+  /// **'Con tu reporte enviamos el estado de ViajeOK en tu celular: si la lectura de pantalla y el análisis están activos, si la batería lo limita y qué apps de viaje tienes instaladas. Nunca enviamos datos de tus viajes.'**
+  String get supportDiagnosticsNote;
+
   /// No description provided for @supportPhoneModel.
   ///
   /// In es, this message translates to:

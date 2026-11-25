@@ -70,6 +70,10 @@
 
          In particular, this is used by the Flutter engine in io.flutter.plugin.text.ProcessTextPlugin. -->
     <queries>
+        <!-- Support diagnostics: which ride apps are installed, and their versions. -->
+        <package android:name="com.didiglobal.driver" />
+        <package android:name="com.ubercab.driver" />
+        <package android:name="com.rappi.storekeeper" />
         <!-- Meta SDK: lets it read the Facebook app's attribution id, which
              Meta uses to match installs to ads (and for "Probar eventos"). -->
         <package android:name="com.facebook.katana" />

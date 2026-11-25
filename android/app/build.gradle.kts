@@ -30,7 +30,10 @@ android {
         applicationId = "cloud.doublee.viajeok"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        // Android 11+: reading offers needs the accessibility screenshot
+        // (API 30) for DiDi and Rappi, so older phones could install the app
+        // but never get an alert (support ticket SOP-000013, Android 10).
+        minSdk = 30
         targetSdk = flutter.targetSdkVersion
         // Uses the version code from pubspec.yaml. When using split APKs, 1000 * ABI_VERSION
         // is added automatically by Flutter. (https://developer.android.com/studio/build/configure-apk-splits#configure-APK-versions)

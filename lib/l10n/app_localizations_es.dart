@@ -129,6 +129,26 @@ class AppLocalizationsEs extends AppLocalizations {
   String get supportIssueRequired => 'Selecciona qué problema tienes';
 
   @override
+  String get supportRideApp => '¿En qué app pasa?';
+
+  @override
+  String get supportRideAppOther => 'Otra';
+
+  @override
+  String get supportRideAppRequired => 'Selecciona la app';
+
+  @override
+  String get supportComment => 'Cuéntanos qué pasó (opcional)';
+
+  @override
+  String get supportCommentHint =>
+      'Ej. me llegan ofertas de Uber y no sale nada';
+
+  @override
+  String get supportDiagnosticsNote =>
+      'Con tu reporte enviamos el estado de ViajeOK en tu celular: si la lectura de pantalla y el análisis están activos, si la batería lo limita y qué apps de viaje tienes instaladas. Nunca enviamos datos de tus viajes.';
+
+  @override
   String get supportPhoneModel => 'Modelo del celular';
 
   @override

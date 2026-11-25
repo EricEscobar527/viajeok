@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
 import '../platform/device_info.dart';
+import '../platform/reader_diagnostics.dart';
 
 /// What the user picked in "¿Qué problema tienes?". The [code] is what the
 /// backend receives, so keep it stable even if the labels change.
@@ -23,6 +24,19 @@ enum SupportIssue {
   bool get needsDeviceDetails => this != SupportIssue.other;
 }
 
+/// The ride app a calculation/alert problem happened in. [label] goes into
+/// the report text, so it's the same in every language.
+enum RideApp {
+  didi('DiDi'),
+  uber('Uber'),
+  rappi('Rappi'),
+  other('Otra');
+
+  const RideApp(this.label);
+
+  final String label;
+}
+
 /// A support report: what the user filled in, plus app/phone details
 /// collected automatically.
 class SupportTicket {
@@ -32,8 +46,10 @@ class SupportTicket {
     this.phoneModel,
     this.email,
     this.message,
+    this.rideApp,
     this.screenshotPaths = const [],
     this.device,
+    this.diagnostics,
   });
 
   final SupportIssue issue;
@@ -46,6 +62,9 @@ class SupportTicket {
   final String? email;
   final String? message;
 
+  /// Where the problem happened (calculation/alert problems).
+  final RideApp? rideApp;
+
   /// Local file paths of the screenshots the user picked.
   final List<String> screenshotPaths;
 
@@ -53,12 +72,28 @@ class SupportTicket {
   /// Null if they couldn't be read.
   final DeviceInfo? device;
 
+  /// State of the trip reader. Null if it couldn't be read.
+  final ReaderDiagnostics? diagnostics;
+
+  /// What the backend stores as the message: the user's text, then the
+  /// ride app and the diagnostics, which the backend has no fields for, so
+  /// the support team sees them in the ticket without a backend change.
+  /// Null when there's nothing at all.
+  String? get fullMessage {
+    final parts = [
+      if (message?.trim() case final m? when m.isNotEmpty) m,
+      if (rideApp case final app?) 'App de viajes: ${app.label}',
+      if (diagnostics case final d?) d.describe(sentAt),
+    ];
+    return parts.isEmpty ? null : parts.join('\n\n');
+  }
+
   /// Text fields of the multipart request (see [HttpSupportApi]).
   Map<String, String> toFormFields() => {
     'issue': issue.code,
     'email': ?email,
     'phone_model': ?phoneModel,
-    'message': ?message,
+    'message': ?fullMessage,
     'device_time': isoWithOffset(sentAt),
     if (device case final d?) ...{
       'app_version': d.appVersion,
@@ -180,7 +215,8 @@ class UnconfiguredSupportApi implements SupportApi {
 /// - `issue`: [SupportIssue.code] (`wrong_calculation`, `alert_not_shown`, `other`)
 /// - `email`: always
 /// - `phone_model`: for the first two issues, as typed by the user
-/// - `message`: for `other`
+/// - `message`: [SupportTicket.fullMessage]: the user's text (required for
+///   `other`, optional otherwise), the ride app and the diagnostics
 /// - `device_time`: always; phone's local time with offset, ISO 8601
 /// - `app_version`, `app_build`, `android_version`, `android_sdk`,
 ///   `device_manufacturer`, `device_brand`, `device_model`: read from
