@@ -70,6 +70,12 @@ abstract final class TripReader {
     );
   }
 
+  /// Android's page for this app (Batería, Inicio automático, …).
+  static Future<void> openAppSettings() async {
+    if (!Platform.isAndroid) return;
+    await _channel.invokeMethod<void>('openAppSettings');
+  }
+
   /// Opens [url] in whatever app handles it; false if none can.
   static Future<bool> openUrl(String url) async {
     if (!Platform.isAndroid) return false;

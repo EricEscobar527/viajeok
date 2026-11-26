@@ -224,6 +224,37 @@ class AppLocalizationsEs extends AppLocalizations {
       '\$90 al mes, \$200 cada 3 meses o \$500 al año';
 
   @override
+  String get warnServiceOffTitle => 'Falta activar la lectura de pantalla';
+
+  @override
+  String get warnServiceOffText =>
+      'Sin ella ViajeOK no puede ver tus ofertas. En Ajustes, busca ViajeOK en Accesibilidad (puede estar en «Aplicaciones instaladas» o «Servicios descargados») y actívalo.';
+
+  @override
+  String get warnServiceOffAction => 'Activar';
+
+  @override
+  String get warnServiceStoppedTitle =>
+      'Tu celular detuvo la lectura de pantalla';
+
+  @override
+  String get warnServiceStoppedText =>
+      'Está activada pero Android no la está ejecutando. En Accesibilidad, desactiva ViajeOK y vuelve a activarlo.';
+
+  @override
+  String get warnBatteryTitle => 'Tu celular puede apagar ViajeOK';
+
+  @override
+  String get warnBatteryText =>
+      'Para ahorrar batería, tu celular puede detener ViajeOK y no te saldría la alerta. En Batería elige «Sin restricciones», y si ves «Inicio automático», actívalo.';
+
+  @override
+  String get warnBatteryDone => 'Ya lo hice';
+
+  @override
+  String get warnOpenSettings => 'Abrir ajustes';
+
+  @override
   String get serviceOnTitle => 'Lectura de pantalla activa';
 
   @override

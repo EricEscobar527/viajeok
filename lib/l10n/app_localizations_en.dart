@@ -221,6 +221,36 @@ class AppLocalizationsEn extends AppLocalizations {
       '\$90 per month, \$200 every 3 months or \$500 per year';
 
   @override
+  String get warnServiceOffTitle => 'Screen reading isn\'t on yet';
+
+  @override
+  String get warnServiceOffText =>
+      'Without it ViajeOK can\'t see your offers. In Settings, find ViajeOK under Accessibility (it may be under \"Installed apps\" or \"Downloaded services\") and turn it on.';
+
+  @override
+  String get warnServiceOffAction => 'Turn on';
+
+  @override
+  String get warnServiceStoppedTitle => 'Your phone stopped screen reading';
+
+  @override
+  String get warnServiceStoppedText =>
+      'It\'s on, but Android isn\'t running it. In Accessibility, turn ViajeOK off and on again.';
+
+  @override
+  String get warnBatteryTitle => 'Your phone may shut ViajeOK down';
+
+  @override
+  String get warnBatteryText =>
+      'To save battery, your phone may stop ViajeOK and the alert wouldn\'t show. Under Battery choose \"Unrestricted\", and if you see \"Autostart\", turn it on.';
+
+  @override
+  String get warnBatteryDone => 'Done';
+
+  @override
+  String get warnOpenSettings => 'Open settings';
+
+  @override
   String get serviceOnTitle => 'Screen reading is on';
 
   @override

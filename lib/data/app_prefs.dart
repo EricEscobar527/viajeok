@@ -18,6 +18,21 @@ class AppPrefs {
   bool get onboardingDone => _prefs.getBool(_onboardingDoneKey) ?? false;
   Future<void> setOnboardingDone() => _prefs.setBool(_onboardingDoneKey, true);
 
+  /// Set when ▶ sends the user to Android's settings for the accessibility
+  /// permission, so the analysis starts by itself once they come back with
+  /// it on (they already pressed ▶ once and wouldn't think to press it again).
+  bool get startAfterPermission =>
+      _prefs.getBool('start_after_permission') ?? false;
+  Future<void> setStartAfterPermission(bool v) =>
+      _prefs.setBool('start_after_permission', v);
+
+  /// The user said they already fixed the battery setting; some phones keep
+  /// reporting it as limited, so the warning mustn't nag forever.
+  bool get batteryHintDismissed =>
+      _prefs.getBool('battery_hint_dismissed') ?? false;
+  Future<void> setBatteryHintDismissed() =>
+      _prefs.setBool('battery_hint_dismissed', true);
+
   // Filters are stored as `filter_<kind>_on` / `filter_<kind>_value`.
   List<TripFilter> get filters => [
     for (final k in FilterKind.values)

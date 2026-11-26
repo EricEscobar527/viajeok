@@ -14,6 +14,9 @@ abstract final class AppColors {
   static const green = Color(0xFF34D399);
   static const red = Color(0xFFF87171);
 
+  /// Something on the phone keeps the alert from showing (panel warnings).
+  static const warning = Color(0xFFFBBF24);
+
   static const textPrimary = Color(0xFFF5F6F8);
   static const textSecondary = Color(0xFFB4BAC2);
   static const textMuted = Color(0xFF848B95);

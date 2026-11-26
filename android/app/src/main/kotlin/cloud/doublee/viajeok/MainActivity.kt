@@ -57,6 +57,14 @@ class MainActivity : FlutterActivity() {
                         result.success(null)
                     }
                     "openUrl" -> result.success(openUrl(call.arguments as String))
+                    // Battery / autostart live on the app's own settings page.
+                    "openAppSettings" -> {
+                        startActivity(
+                            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                                .setData(Uri.fromParts("package", packageName, null)),
+                        )
+                        result.success(null)
+                    }
                     // Attached to support reports (lib/platform/device_info.dart).
                     "deviceInfo" -> result.success(deviceInfo())
                     // State of the reader, also attached to support reports.

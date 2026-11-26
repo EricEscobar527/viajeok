@@ -452,6 +452,60 @@ abstract class AppLocalizations {
   /// **'\$90 al mes, \$200 cada 3 meses o \$500 al año'**
   String get supportPricesDefault;
 
+  /// No description provided for @warnServiceOffTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Falta activar la lectura de pantalla'**
+  String get warnServiceOffTitle;
+
+  /// No description provided for @warnServiceOffText.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin ella ViajeOK no puede ver tus ofertas. En Ajustes, busca ViajeOK en Accesibilidad (puede estar en «Aplicaciones instaladas» o «Servicios descargados») y actívalo.'**
+  String get warnServiceOffText;
+
+  /// No description provided for @warnServiceOffAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Activar'**
+  String get warnServiceOffAction;
+
+  /// No description provided for @warnServiceStoppedTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu celular detuvo la lectura de pantalla'**
+  String get warnServiceStoppedTitle;
+
+  /// No description provided for @warnServiceStoppedText.
+  ///
+  /// In es, this message translates to:
+  /// **'Está activada pero Android no la está ejecutando. En Accesibilidad, desactiva ViajeOK y vuelve a activarlo.'**
+  String get warnServiceStoppedText;
+
+  /// No description provided for @warnBatteryTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu celular puede apagar ViajeOK'**
+  String get warnBatteryTitle;
+
+  /// No description provided for @warnBatteryText.
+  ///
+  /// In es, this message translates to:
+  /// **'Para ahorrar batería, tu celular puede detener ViajeOK y no te saldría la alerta. En Batería elige «Sin restricciones», y si ves «Inicio automático», actívalo.'**
+  String get warnBatteryText;
+
+  /// No description provided for @warnBatteryDone.
+  ///
+  /// In es, this message translates to:
+  /// **'Ya lo hice'**
+  String get warnBatteryDone;
+
+  /// No description provided for @warnOpenSettings.
+  ///
+  /// In es, this message translates to:
+  /// **'Abrir ajustes'**
+  String get warnOpenSettings;
+
   /// No description provided for @serviceOnTitle.
   ///
   /// In es, this message translates to:

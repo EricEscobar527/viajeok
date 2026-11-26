@@ -40,6 +40,22 @@ class TripParserTest {
     }
 
     @Test
+    fun parsesDidiCardWithFuelFeeAndPickupInMeters() {
+        // Support ticket SOP-000021 (Reynosa): fuel fee line, pickup in meters.
+        val lines = listOf(
+            "Pon Tu Precio", "$75.20", "7 puntos", "$2.74 de tarifa de gasolina", "4.96 · 101 viajes",
+            "3 min (759 m)", "Guelatao 220, Lic Benito Juárez, Reynosa",
+            "18 min (8.3 km)", "Avenida Todos los Santos 105, Villas de San José, Reynosa",
+        )
+        val o = TripParser.parse(lines)!!
+        assertEquals(75.20, o.fare, 0.001)
+        assertEquals(3.0, o.pickupMinutes, 0.001)
+        assertEquals(0.759, o.pickupKm, 0.001)
+        assertEquals(18.0, o.tripMinutes, 0.001)
+        assertEquals(8.3, o.tripKm, 0.001)
+    }
+
+    @Test
     fun fareComesFromAcceptButtonNotCounterOffers() {
         val o = TripParser.parse(listOf("$50.04", "8 min (1.8 km)", "24 min (8.7 km)", "Aceptar $46.04"))!!
         assertEquals(46.04, o.fare, 0.001)

@@ -5,6 +5,7 @@ import '../billing/subscription_screen.dart';
 import '../data/app_prefs.dart';
 import '../data/trip_filters.dart';
 import '../l10n/app_localizations.dart';
+import '../platform/reader_diagnostics.dart';
 import '../platform/trip_reader.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common.dart';
@@ -30,6 +31,14 @@ class _PanelScreenState extends State<PanelScreen> with WidgetsBindingObserver {
   bool _running = false;
   bool _serviceEnabled = false;
 
+  /// What could keep the alert from showing; null until read (or off Android).
+  ReaderDiagnostics? _diag;
+
+  /// Android binds the service a moment after it's switched on, so "enabled
+  /// but not running" is only reported if it's still true on a second look.
+  bool _notConnectedSeen = false;
+  bool _stoppedConfirmed = false;
+
   @override
   void initState() {
     super.initState();
@@ -50,14 +59,85 @@ class _PanelScreenState extends State<PanelScreen> with WidgetsBindingObserver {
   }
 
   Future<void> _refresh() async {
-    final running = await TripReader.isRunning();
+    var running = await TripReader.isRunning();
     final enabled = await TripReader.isServiceEnabled();
-    if (mounted) {
-      setState(() {
-        _running = running;
-        _serviceEnabled = enabled;
+    final prefs = widget.prefs;
+    // Back from Android's settings with the permission on: the user already
+    // pressed ▶, so start without making them press it again.
+    if (enabled && prefs.startAfterPermission) {
+      await prefs.setStartAfterPermission(false);
+      if (!running) {
+        await TripReader.pushConfig(prefs);
+        await TripReader.setRunning(true);
+        running = await TripReader.isRunning();
+      }
+    }
+    final diag = await ReaderDiagnostics.load();
+    if (!mounted) return;
+    final notConnected = diag != null && enabled && !diag.serviceConnected;
+    final recheck = notConnected && !_notConnectedSeen;
+    setState(() {
+      _running = running;
+      _serviceEnabled = enabled;
+      _diag = diag;
+      _stoppedConfirmed = notConnected && _notConnectedSeen;
+      _notConnectedSeen = notConnected;
+    });
+    if (recheck) {
+      Future<void>.delayed(const Duration(seconds: 3), () {
+        if (mounted) _refresh();
       });
     }
+  }
+
+  Future<void> _openServiceSettings() async {
+    await widget.prefs.setStartAfterPermission(true);
+    await TripReader.openServiceSettings();
+  }
+
+  Future<void> _dismissBatteryHint() async {
+    await widget.prefs.setBatteryHintDismissed();
+    if (mounted) setState(() {});
+  }
+
+  /// Only while the user wants the analysis on (or is setting it up): the
+  /// first thing on the phone that keeps the alert from showing.
+  Widget? _warning(AppLocalizations t) {
+    final pending = widget.prefs.startAfterPermission;
+    if (!_running && !pending) return null;
+    if (!_serviceEnabled) {
+      return _WarningCard(
+        icon: Icons.visibility_off_outlined,
+        title: t.warnServiceOffTitle,
+        text: t.warnServiceOffText,
+        action: t.warnServiceOffAction,
+        onAction: _openServiceSettings,
+      );
+    }
+    final diag = _diag;
+    if (diag == null) return null;
+    if (_stoppedConfirmed) {
+      return _WarningCard(
+        icon: Icons.sync_problem_outlined,
+        title: t.warnServiceStoppedTitle,
+        text: t.warnServiceStoppedText,
+        action: t.warnOpenSettings,
+        onAction: _openServiceSettings,
+      );
+    }
+    final limited = !diag.batteryUnrestricted || diag.backgroundRestricted;
+    if (_running && limited && !widget.prefs.batteryHintDismissed) {
+      return _WarningCard(
+        icon: Icons.battery_alert_outlined,
+        title: t.warnBatteryTitle,
+        text: t.warnBatteryText,
+        action: t.warnOpenSettings,
+        onAction: TripReader.openAppSettings,
+        dismiss: t.warnBatteryDone,
+        onDismiss: _dismissBatteryHint,
+      );
+    }
+    return null;
   }
 
   Future<void> _toggle() async {
@@ -76,7 +156,7 @@ class _PanelScreenState extends State<PanelScreen> with WidgetsBindingObserver {
     if (!await TripReader.isServiceEnabled()) {
       if (!mounted) return;
       if (await AccessibilityDisclosureScreen.show(context)) {
-        await TripReader.openServiceSettings();
+        await _openServiceSettings();
       }
       return;
     }
@@ -118,12 +198,14 @@ class _PanelScreenState extends State<PanelScreen> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    final warning = _warning(AppLocalizations.of(context));
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
       children: [
         _running
             ? _RunningCard(onStop: _toggle)
             : _StartButton(onStart: _toggle),
+        if (warning != null) ...[const SizedBox(height: 12), warning],
         if (_serviceEnabled) ...[
           const SizedBox(height: 12),
           _ServiceCard(onDisable: _disableService),
@@ -244,6 +326,95 @@ class _ServiceCard extends StatelessWidget {
               ),
             ),
             child: Text(t.btnDisableService),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Something on the phone keeps the alert from showing, and how to fix it.
+class _WarningCard extends StatelessWidget {
+  const _WarningCard({
+    required this.icon,
+    required this.title,
+    required this.text,
+    required this.action,
+    required this.onAction,
+    this.dismiss,
+    this.onDismiss,
+  });
+
+  final IconData icon;
+  final String title;
+  final String text;
+  final String action;
+  final VoidCallback onAction;
+  final String? dismiss;
+  final VoidCallback? onDismiss;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 14, 12, 8),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(kRadius),
+        border: Border.all(color: AppColors.warning),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(icon, color: AppColors.warning),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 15,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      text,
+                      style: const TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 13,
+                        height: 1.35,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              if (dismiss != null)
+                TextButton(
+                  onPressed: onDismiss,
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.textSecondary,
+                  ),
+                  child: Text(dismiss!),
+                ),
+              TextButton(
+                onPressed: onAction,
+                style: TextButton.styleFrom(
+                  foregroundColor: AppColors.warning,
+                  textStyle: const TextStyle(fontWeight: FontWeight.w700),
+                ),
+                child: Text(action),
+              ),
+            ],
           ),
         ],
       ),
